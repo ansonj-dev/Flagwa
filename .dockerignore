@@ -1,0 +1,13 @@
+.git
+.venv
+.env
+.env.*
+*.env
+*.env.*
+data
+storage
+tests
+__pycache__
+.pytest_cache
+*.h5
+*.hdf5

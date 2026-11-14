@@ -1,0 +1,103 @@
+services:
+  - type: keyvalue
+    name: flagwa-redis
+    plan: starter
+    ipAllowList: []
+  - type: web
+    name: flagwa-api
+    runtime: docker
+    plan: starter
+    dockerCommand: sh -c 'uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-10000}" --no-access-log'
+    preDeployCommand: sh -c 'alembic upgrade head && python -m app.cli.seed_locations'
+    healthCheckPath: /health/ready
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: flagwa-redis
+          property: connectionString
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: LOCAL_STORAGE_PATH
+        value: /tmp/flagwa-storage
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_REGION
+        value: us-east-1
+      - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: EARTHDATA_USERNAME
+        sync: false
+      - key: EARTHDATA_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+  - type: worker
+    name: flagwa-worker
+    runtime: docker
+    plan: standard
+    dockerCommand: celery -A app.workers.celery_app:celery_app worker --loglevel=warning --concurrency=1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: DATABASE_URL
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: flagwa-redis
+          property: connectionString
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: LOCAL_STORAGE_PATH
+        value: /tmp/flagwa-storage
+      - key: ADMIN_API_KEY
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: ADMIN_API_KEY
+      - key: S3_BUCKET
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: S3_BUCKET
+      - key: S3_REGION
+        value: us-east-1
+      - key: S3_ENDPOINT_URL
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: S3_ENDPOINT_URL
+      - key: S3_ACCESS_KEY_ID
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: S3_ACCESS_KEY_ID
+      - key: S3_SECRET_ACCESS_KEY
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: S3_SECRET_ACCESS_KEY
+      - key: EARTHDATA_USERNAME
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: EARTHDATA_USERNAME
+      - key: EARTHDATA_PASSWORD
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: EARTHDATA_PASSWORD

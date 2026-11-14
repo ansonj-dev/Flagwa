@@ -8,3 +8,10 @@ data/raw/
 data/processed/
 *.h5
 *.H5
+storage/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+*.hdf5

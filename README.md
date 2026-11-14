@@ -1,8 +1,16 @@
-# FLAGWA — Kerala NISAR Data Audit Starter Kit
+# FLAGWA — Global Surface Change Explorer
+
+Reading Earth's Changing Surface Through Radar.
+
+The modular FastAPI/PostGIS/Celery backend is documented in [docs/BACKEND.md](docs/BACKEND.md).
+See [the API contract](docs/API.md), [repository audit](docs/AUDIT.md), and [verification report](docs/VERIFICATION.md)
+for implemented capabilities, actual test results, and scientific limitations. The original audit scripts remain available below.
+
+## Original Kerala NISAR Data Audit Starter Kit
 
 **Purpose:** run a reproducible catalog search for NISAR L-band GCOV products intersecting the proposed Kuttanad–Alappuzha study window, preserve the returned metadata, and download only explicitly selected granules.
 
-> **Important status:** This kit has not queried the live ASF catalog from this environment. The machine running it must have internet access and the user must run the search. No scene IDs, acquisition dates, or data-availability claims are pre-filled. A zero-result search is a valid audit outcome, not evidence that data exist.
+> **Original starter-kit status:** The original kit below shipped without a live catalogue result or pre-filled scenes. The backend has since completed a genuine-data AOI workflow; see [the verification report](docs/VERIFICATION.md) for evidence and limitations. A zero-result search remains a valid outcome, not evidence that data exist.
 
 ## 1. What the kit does
 

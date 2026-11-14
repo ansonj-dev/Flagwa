@@ -1,0 +1,13 @@
+{
+  "location_slug": "kuttanad",
+  "layer_type": "population",
+  "source": "REPLACE_WITH_ACTUAL_DATASET_NAME",
+  "source_url": "https://example.invalid/REPLACE_WITH_PUBLIC_SOURCE_REFERENCE",
+  "license": "REPLACE_WITH_ACTUAL_LICENSE_AND_ATTRIBUTION",
+  "version": "REPLACE_WITH_ACTUAL_DATASET_VERSION",
+  "retrieved_at": "REPLACE_WITH_ACTUAL_ISO_8601_RETRIEVAL_TIMESTAMP",
+  "crs": "EPSG:4326",
+  "resolution": "REPLACE_WITH_ACTUAL_RASTER_RESOLUTION",
+  "processing_notes": "TEMPLATE ONLY. Document actual processing, nodata, uncertainty and limitations.",
+  "units": "people/pixel"
+}
