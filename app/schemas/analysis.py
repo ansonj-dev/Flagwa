@@ -1,7 +1,7 @@
 from typing import Annotated, Literal
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.schemas.catalog import CompatibilityRequest
 
@@ -31,10 +31,19 @@ class AnalysisRequest(CompatibilityRequest):
     parameters: FloodParameters | None = None
 
 
+class ValidationEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    target: Literal["potential_inundation", "forest_disturbance_candidates", "fire_associated_radar_optical_candidates"]
+    sensor: str = Field(min_length=2, max_length=200)
+    observation_datetime: AwareDatetime
+    independent_of_nisar: bool
+    mapping_method: str = Field(min_length=20, max_length=2000)
+
+
 class ContextRegistration(BaseModel):
     model_config = ConfigDict(extra="forbid")
     location_slug: str
-    layer_type: Literal["population", "settlements", "infrastructure", "landcover", "permanent_water", "hydrology", "elevation", "slope", "boundaries", "rainfall"]
+    layer_type: Literal["population", "settlements", "infrastructure", "landcover", "permanent_water", "hydrology", "elevation", "slope", "boundaries", "rainfall", "forest_loss", "fire_perimeter", "optical_burn", "glacier_extent", "phase_correction", "independent_validation"]
     source: str = Field(min_length=1)
     source_url: str = Field(pattern=r"^https://")
     license: str = Field(min_length=1)
@@ -44,6 +53,9 @@ class ContextRegistration(BaseModel):
     resolution: str
     processing_notes: str
     units: str
+    provider_metadata: dict = Field(default_factory=dict)
+    validation_evidence: ValidationEvidence | None = None
+    is_synthetic: bool = Field(default=False, description="Test fixtures/simulated observations, not synthetic-aperture radar instruments")
 
     @field_validator("source_url")
     @classmethod

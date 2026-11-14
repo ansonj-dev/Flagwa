@@ -125,3 +125,33 @@ def test_bhoonidhi_refresh_cache_and_logout():
     adapter.logout()
     assert calls[-1].headers["authorization"] == "Bearer synthetic-refresh"
     assert adapter.access_token is None
+
+
+def test_acquired_subset_must_include_selected_covariance_and_aoi(synthetic_feature):
+    before = normalize_asf(synthetic_feature)
+    before.geometry = mapping(box(75, 8, 78, 11))
+    before.metadata["download"] = {"mode": "aoi_subset", "polarization": "HHHH", "frequency_group": "A", "aoi": synthetic_feature["geometry"]}
+    after = before.model_copy(deep=True, update={"scene_id": "SYNTHETIC_AFTER", "acquisition_datetime": datetime(2026, 11, 3, tzinfo=timezone.utc)})
+    assert compatibility(before, after, synthetic_feature["geometry"])["compatible"]
+    assert not compatibility(before, after, synthetic_feature["geometry"], "HVHV")["compatible"]
+    report = compatibility(before, after, mapping(box(75, 8, 78, 11)))
+    assert any("Acquired subset" in message for message in report["blockers"])
+
+
+def test_malformed_provider_geometry_is_unknown_not_fabricated(synthetic_feature):
+    synthetic_feature["geometry"] = {"type": "Polygon", "coordinates": None}
+    assert normalize_asf(synthetic_feature).geometry is None
+    assert normalize_asf(synthetic_feature).metadata["original"]["geometry"] == synthetic_feature["geometry"]
+
+
+def test_unknown_matching_maturity_is_still_not_compatible(synthetic_feature):
+    before = normalize_asf(synthetic_feature)
+    before.data_maturity = "UNKNOWN"
+    after = before.model_copy(deep=True, update={"scene_id": "SYNTHETIC_AFTER", "acquisition_datetime": datetime(2026, 11, 3, tzinfo=timezone.utc)})
+    assert not compatibility(before, after, synthetic_feature["geometry"])["compatible"]
+    before.data_maturity = after.data_maturity = "VALIDATED"
+    before.flight_direction = after.flight_direction = "UNKNOWN"
+    assert not compatibility(before, after, synthetic_feature["geometry"])["compatible"]
+    before.flight_direction = after.flight_direction = "ASCENDING"
+    before.frequency = after.frequency = "UNKNOWN"
+    assert not compatibility(before, after, synthetic_feature["geometry"])["compatible"]

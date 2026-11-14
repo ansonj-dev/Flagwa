@@ -30,6 +30,8 @@ services:
         sync: false
       - key: S3_REGION
         value: us-east-1
+      - key: S3_SERVER_SIDE_ENCRYPTION
+        value: AES256
       - key: S3_ENDPOINT_URL
         sync: false
       - key: S3_ACCESS_KEY_ID
@@ -76,6 +78,11 @@ services:
           envVarKey: S3_BUCKET
       - key: S3_REGION
         value: us-east-1
+      - key: S3_SERVER_SIDE_ENCRYPTION
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: S3_SERVER_SIDE_ENCRYPTION
       - key: S3_ENDPOINT_URL
         fromService:
           type: web
@@ -101,3 +108,28 @@ services:
           type: web
           name: flagwa-api
           envVarKey: EARTHDATA_PASSWORD
+  - type: worker
+    name: flagwa-scheduler
+    runtime: docker
+    plan: starter
+    dockerCommand: celery -A app.workers.celery_app:celery_app beat --loglevel=warning --schedule /tmp/flagwa-celerybeat-schedule --pidfile /tmp/flagwa-celerybeat.pid
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: DATABASE_URL
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: flagwa-redis
+          property: connectionString
+      - key: ADMIN_API_KEY
+        fromService:
+          type: web
+          name: flagwa-api
+          envVarKey: ADMIN_API_KEY
+      - key: LOCAL_STORAGE_PATH
+        value: /tmp/flagwa-scheduler

@@ -1,4 +1,5 @@
 import json
+import math
 from pathlib import Path
 
 import rasterio
@@ -27,12 +28,12 @@ REFERENCES = {
 }
 
 
-def register_context(session, source_path, registration):
+def register_context(session, source_path, registration, commit=True):
     location = session.scalar(select(Location).where(Location.slug == registration.location_slug))
     if not location:
         raise FlagwaError("LOCATION_NOT_FOUND", "Location was not found", 404)
     source_path = Path(source_path)
-    metadata = registration.model_dump()
+    metadata = registration.model_dump(mode="json")
     retrieved = parse_datetime(registration.retrieved_at)
     if retrieved is None:
         raise FlagwaError("INVALID_RETRIEVAL_DATE", "retrieved_at must be an ISO-8601 timestamp", 422)
@@ -46,7 +47,8 @@ def register_context(session, source_path, registration):
             if not source.crs or source.crs.to_string() != registration.crs:
                 raise FlagwaError("CONTEXT_CRS_MISMATCH", "Declared CRS must match the actual raster", 422)
             extent = box(*transform_bounds(source.crs, "EPSG:4326", *source.bounds))
-            metadata["raster"] = {"resolution": list(source.res), "nodata": source.nodata,
+            metadata["raster"] = {"resolution": list(source.res), "nodata": source.nodata if source.nodata is None or math.isfinite(source.nodata) else None,
+                                  "nodata_is_nan": source.nodata is not None and math.isnan(source.nodata),
                                   "width": source.width, "height": source.height, "dtype": source.dtypes[0]}
     if not extent.is_valid or extent.is_empty:
         raise FlagwaError("INVALID_CONTEXT_EXTENT", "Context dataset has an invalid extent", 422)
@@ -62,5 +64,5 @@ def register_context(session, source_path, registration):
                          layer_type=registration.layer_type, source=registration.source, version=registration.version,
                          file_path=key, geometry=from_shape(extent, srid=4326), metadata_json=metadata)
     session.add(layer)
-    session.commit()
+    session.commit() if commit else session.flush()
     return layer

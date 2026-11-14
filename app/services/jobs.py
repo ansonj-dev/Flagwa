@@ -19,6 +19,7 @@ def transition(job, status: str, progress: int | None = None):
         job.progress = progress
     if status == "RUNNING":
         job.started_at = utcnow()
+        job.heartbeat_at = utcnow()
     if status in {"COMPLETED", "FAILED", "CANCELLED"}:
         job.completed_at = utcnow()
     if status == "COMPLETED":

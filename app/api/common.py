@@ -27,7 +27,7 @@ def location_dict(location):
 
 def job_dict(job):
     return {key: getattr(job, key) for key in ["id", "location_id", "job_type", "status", "progress", "input_scenes", "parameters",
-                                              "created_at", "started_at", "completed_at", "error_message"]}
+                                              "created_at", "started_at", "heartbeat_at", "completed_at", "error_message"]}
 
 
 def result_dict(result):

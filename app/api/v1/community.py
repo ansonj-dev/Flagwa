@@ -15,6 +15,7 @@ from app.database.session import get_db
 from app.models import AnalysisJob, ContextLayer, Location
 from app.services.context.exposure import raster_exposure, vector_exposure
 from app.services.storage import get_storage
+from app.services.nisar.scene_metadata import public_metadata
 
 router = APIRouter(tags=["Community context"])
 
@@ -31,7 +32,7 @@ def community_endpoint(layer_type):
     def layer_metadata(location_slug: str, request: Request, db: Session = Depends(get_db)):
         _, records = context_layers(db, location_slug, layer_type)
         return ok(request, [{"id": layer.id, "layer_type": layer.layer_type, "source": layer.source,
-                             "version": layer.version, "provenance": layer.metadata_json} for layer in records])
+                             "version": layer.version, "provenance": public_metadata(layer.metadata_json)} for layer in records])
     return layer_metadata
 
 
@@ -43,6 +44,8 @@ for layer_type in ["population", "settlements", "infrastructure", "landcover", "
 def exposure(location_slug: str, result_id: UUID, request: Request, distance_m: float = Query(0, ge=0, le=5000), agriculture_class: int | None = Query(None, ge=0, le=65535), db: Session = Depends(get_db)):
     location = required(db.scalar(select(Location).where(Location.slug == location_slug)), "LOCATION_NOT_FOUND", "Location was not found")
     result = get_result(db, result_id)
+    if result.metadata_json.get("geometry_semantics") == "measurement_coverage_not_impact_area":
+        raise FlagwaError("EXPOSURE_NOT_APPLICABLE", "Continuous measurement coverage is not a detected change or impact area", 422)
     job = db.get(AnalysisJob, result.analysis_job_id)
     if job.location_id != location.id:
         raise FlagwaError("RESULT_LOCATION_MISMATCH", "Result does not belong to this location", 422)
@@ -64,10 +67,11 @@ def exposure(location_slug: str, result_id: UUID, request: Request, distance_m: 
         else:
             estimate = {"status": "unsupported_context_format"}
         estimates.append({"context_layer_id": layer.id, "layer_type": layer.layer_type, "source": layer.source,
-                          "version": layer.version, "provenance": layer.metadata_json, "exposure": estimate})
+                          "version": layer.version, "provenance": public_metadata(layer.metadata_json), "exposure": estimate})
     if not estimates:
         raise FlagwaError("EXPOSURE_DATA_NOT_AVAILABLE", "No population, settlement, infrastructure, land-cover or hydrology layers are registered; absence is not zero exposure", 424)
     available_types = {entry["layer_type"] for entry in estimates}
     return ok(request, {"analysis_id": str(result_id), "validation_status": result.validation_status, "estimates": estimates,
+                        "synthetic": bool(result.metadata_json.get("synthetic") or any(layer.metadata_json.get("is_synthetic") for layer in layers if layer.layer_type in available_types)),
                         "unavailable_layer_types": sorted({"population", "settlements", "infrastructure", "landcover", "hydrology"} - available_types),
                         "limitations": ["Candidate geographic exposure is not a verified impact or affected-person count"]})

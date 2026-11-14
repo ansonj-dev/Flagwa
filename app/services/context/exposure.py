@@ -32,8 +32,12 @@ def vector_exposure(collection, change_geometry, distance_m=0):
 
 
 def raster_exposure(path, change_geometry, units, selected_classes=None):
+    if units != "people/pixel" and not (units == "class" and selected_classes):
+        raise FlagwaError("CONTEXT_UNITS_UNSUPPORTED", "Population requires people/pixel; categorical exposure requires class codes", 422)
     if shape(change_geometry).is_empty:
-        return {"estimate": 0, "units": units, "method": "empty candidate geometry", "valid_coverage_fraction": None}
+        return {"estimate": 0, "units": "people_geographically_exposed" if units == "people/pixel" else "pixels",
+                "method": "empty candidate geometry", "valid_coverage_fraction": None,
+                "limitations": ["No candidate area is not proof that no hazard or affected people exist"]}
     with rasterio.open(path) as source:
         if not source.crs:
             raise FlagwaError("CONTEXT_CRS_MISSING", "Context raster must have a CRS", 422)

@@ -10,6 +10,8 @@ from app.core.exceptions import FlagwaError
 from app.database.session import get_engine
 from app.services.nisar.earthdata_auth import earthdata_auth
 from app.services.processing.capabilities import CAPABILITIES
+from app.services.reporting.interpreter import ai_configured
+from app.services.storage import get_storage
 
 router = APIRouter(prefix="/health", tags=["Health"])
 
@@ -22,7 +24,7 @@ def live(request: Request):
 @router.get("/ready")
 def ready(request: Request):
     settings = get_settings()
-    checks = {"database": False, "postgis": False, "migrations": False, "redis": False, "staging": False}
+    checks = {"database": False, "postgis": False, "migrations": False, "redis": False, "staging": False, "artifact_storage": False}
     try:
         with get_engine().connect() as connection:
             checks["database"] = connection.scalar(text("SELECT 1")) == 1
@@ -41,7 +43,10 @@ def ready(request: Request):
         with tempfile.TemporaryFile(dir=settings.local_storage_path) as probe:
             probe.write(b"flagwa-readiness")
         checks["staging"] = True
-    except OSError:
+        if settings.storage_backend == "s3":
+            get_storage().client.head_bucket(Bucket=settings.s3_bucket)
+        checks["artifact_storage"] = True
+    except Exception:
         pass
     if not all(checks.values()):
         raise FlagwaError("DEPENDENCIES_NOT_READY", "Unavailable dependencies: " + ", ".join(key for key, value in checks.items() if not value), 503)
@@ -54,4 +59,5 @@ def providers(request: Request):
     return ok(request, {"ASF": {"enabled": True, "catalogue": "public", "live_health": "not_checked_by_this_endpoint"},
                         "Earthdata": earthdata_auth().status(),
                         "Bhoonidhi": {"enabled": settings.bhoonidhi_enabled, "live_tested": False, "requires": "NRSC programmatic API authorization"},
-                        "AI": {"enabled": False, "requested": settings.ai_enabled, "status": "not_implemented_optional"}, "analysis_capabilities": CAPABILITIES})
+                           "AI": {"enabled": ai_configured(settings), "requested": settings.ai_enabled,
+                               "status": "optional_verified_clause_selector" if ai_configured(settings) else "disabled_or_unconfigured"}, "analysis_capabilities": CAPABILITIES})

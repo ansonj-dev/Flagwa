@@ -1,4 +1,6 @@
 import pytest
+from types import SimpleNamespace
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
 from app.core.exceptions import FlagwaError
@@ -20,7 +22,7 @@ def test_live_and_provider_health(client):
     response = client.get("/health/providers")
     assert response.status_code == 200
     assert "earthdata_token" not in response.text
-    assert response.json()["data"]["analysis_capabilities"]["deformation"]["status"] == "not_implemented"
+    assert response.json()["data"]["analysis_capabilities"]["deformation"]["operational"] is False
     origin = "http://localhost:5173"
     preflight = client.options("/api/v1/exports/synthetic/geotiff", headers={"Origin": origin,
                                "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "Range"})
@@ -64,3 +66,19 @@ def test_provider_failure_format(client, monkeypatch):
         assert response.json()["success"] is False
     finally:
         app.dependency_overrides.clear()
+
+
+def test_readiness_reports_object_storage_failure_without_raw_error(tmp_path, monkeypatch):
+    from app.api import health
+    from app.core.config import Settings
+
+    settings = Settings(_env_file=None, storage_backend="s3", s3_bucket="synthetic-readiness-bucket", local_storage_path=tmp_path)
+    monkeypatch.setattr(health, "get_settings", lambda: settings)
+    monkeypatch.setattr(health, "get_engine", lambda: (_ for _ in ()).throw(RuntimeError("synthetic database unavailable")))
+    monkeypatch.setattr(health.Redis, "from_url", lambda *args, **kwargs: MagicMock())
+    monkeypatch.setattr(health, "get_storage", lambda: (_ for _ in ()).throw(RuntimeError("synthetic private provider diagnostic")))
+    with pytest.raises(FlagwaError) as caught:
+        health.ready(SimpleNamespace(state=SimpleNamespace(request_id="synthetic-request")))
+    assert caught.value.status == 503
+    assert "artifact_storage" in caught.value.message
+    assert "private provider diagnostic" not in caught.value.message

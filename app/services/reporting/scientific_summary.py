@@ -2,6 +2,7 @@ def scientific_summary(metadata, statistics):
     return {
         "title": "FLAGWA potential-inundation candidates",
         "analysis_id": metadata["analysis_id"],
+        "synthetic": bool(metadata.get("synthetic")),
         "statement": "Threshold-based radar surface-response candidates, not a confirmed flood extent or flood-depth estimate.",
         "source_scenes": metadata["source_scenes"],
         "acquisition_dates": metadata["acquisition_dates"],

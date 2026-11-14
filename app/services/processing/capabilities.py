@@ -2,11 +2,11 @@ from app.core.exceptions import FlagwaError
 
 CAPABILITIES = {
     "flood": {"product": "GCOV", "status": "implemented_pending_scientific_validation", "method": "potential_inundation"},
-    "forest": {"product": "GCOV", "status": "not_implemented", "requires": "Forest mask, temporal model, independent forest-loss validation"},
-    "agriculture": {"product": "GCOV", "status": "not_implemented", "requires": "Seasonal time series, land cover, rainfall; SME2 maturity verification for soil moisture"},
-    "glacier": {"product": "GOFF", "status": "not_implemented", "requires": "Offsets, units, quality flags and movement-reference validation"},
-    "wildfire": {"product": "GCOV", "status": "not_implemented", "requires": "Official fire perimeter and independent optical burn validation"},
-    "deformation": {"product": "GUNW", "status": "not_implemented", "requires": "Coherence, unwrap quality, reference, atmosphere, orbital correction and LOS geometry"},
+    "forest": {"product": "GCOV", "status": "experimental_not_live_validated", "operational": False, "requires": "Dual polarization, forest mask and independent forest-loss/optical review"},
+    "agriculture": {"product": "GCOV", "status": "experimental_not_live_validated", "operational": False, "requires": "At least three dated observations and agricultural land cover; descriptive response only"},
+    "glacier": {"product": "GOFF", "status": "experimental_not_live_validated", "operational": False, "requires": "Actual offset units, quality, glacier mask and source acquisition dates"},
+    "wildfire": {"product": "GCOV", "status": "experimental_not_live_validated", "operational": False, "requires": "Official fire perimeter, event date and independent optical burn mask"},
+    "deformation": {"product": "GUNW", "status": "experimental_not_live_validated", "operational": False, "requires": "Phase units, measured frequency, coherence, connected components, reference and explicit correction assessment"},
 }
 
 

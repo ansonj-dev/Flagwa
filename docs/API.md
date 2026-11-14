@@ -1,6 +1,7 @@
 # API Contract
 
 Base URL: `http://localhost:8000`. Interactive OpenAPI: `/docs`; JSON schema: `/openapi.json`.
+Current contract: **45 paths**. Advanced request examples and mandatory scientific prerequisites are in [ADVANCED.md](ADVANCED.md).
 Application routes use `/api/v1`; health routes deliberately do not. Lists are ordered and bounded where records can grow.
 Binary exports return files, not a JSON envelope. UUID/identifier placeholders below are templates, not real measurements or fabricated observations.
 COG exports support HTTP byte ranges. Configured frontend origins may send `Range`/`If-Range` and read `Content-Range`, `Accept-Ranges` and `ETag`.
@@ -16,7 +17,7 @@ COG exports support HTTP byte ranges. Configured frontend origins may send `Rang
 ```
 
 Use HTTP status as well as `success`. Invalid inputs return `422`; absent records `404`; incompatible state `409`;
-missing context `424`; unimplemented science `501`; provider errors `502/503`; rate limiting `429`.
+missing context `424`; unsupported job types `501`; provider errors `502/503`; rate limiting `429`.
 Provider failures are not hidden as successful empty search results.
 
 ## Routes
@@ -37,20 +38,24 @@ Provider failures are not hidden as successful empty search results.
 | POST | `/api/v1/scenes/{scene_id}/download` | Admin; full product or explicit AOI subset; returns `202` job |
 | GET | `/api/v1/scenes/{scene_id}/download-status` | Transfer state and latest job |
 | GET | `/api/v1/scenes/{scene_id}` | Scene details alias |
+| GET | `/api/v1/scenes/{scene_id}/inspection` | Actual in-product dataset paths, units and shapes; never server filesystem paths; `contains`, `limit`, `offset` |
 | POST | `/api/v1/analysis/flood` | Admin; asynchronous potential-inundation workflow |
-| POST | `/api/v1/analysis/forest` | Admin; explicit `501` scientific boundary |
-| POST | `/api/v1/analysis/agriculture` | Admin; explicit `501` scientific boundary |
-| POST | `/api/v1/analysis/glacier` | Admin; explicit `501`, requires appropriate GOFF science |
-| POST | `/api/v1/analysis/wildfire` | Admin; explicit `501` scientific boundary |
-| POST | `/api/v1/analysis/deformation` | Admin; explicit `501`, requires appropriate GUNW science |
+| POST | `/api/v1/analysis/forest` | Admin; queued dual-polarization GCOV disturbance candidates; experimental |
+| POST | `/api/v1/analysis/agriculture` | Admin; queued GCOV time-series response on agricultural land; experimental |
+| POST | `/api/v1/analysis/glacier` | Admin; queued quality-screened GOFF radar-coordinate offsets/rates; experimental |
+| POST | `/api/v1/analysis/wildfire` | Admin; queued GCOV changes constrained by perimeter and independent optical burn evidence; experimental |
+| POST | `/api/v1/analysis/deformation` | Admin; queued referenced GUNW apparent LOS displacement; experimental |
 | GET | `/api/v1/jobs` | Database jobs; `limit`, `offset` |
 | GET | `/api/v1/jobs/{job_id}` | Full job status, safe error and parameters |
 | GET | `/api/v1/jobs/{job_id}/status` | Polling alias |
 | POST | `/api/v1/jobs/{job_id}/cancel` | Admin; cooperative cancellation |
+| POST | `/api/v1/jobs/{job_id}/retry` | Admin; failed/cancelled jobs create a new execution, deduplicating active retries |
 | GET | `/api/v1/results` | Results belonging only to completed jobs; `limit`, `offset` |
 | GET | `/api/v1/results/{result_id}` | Statistics, scientific status and provenance |
 | GET | `/api/v1/results/{result_id}/statistics` | Measured computed statistics |
 | GET | `/api/v1/results/{result_id}/metadata` | Scientific lineage without private object keys/URLs |
+| POST | `/api/v1/results/{result_id}/validation` | Admin; queued independent-reference assessment and explicitly gated review |
+| GET | `/api/v1/results/{result_id}/interpretation` | Admin, rate-limited; verified clauses with optional AI selection and deterministic fallback |
 | GET | `/api/v1/results/{result_id}/preview` | PNG |
 | GET | `/api/v1/community/{location_slug}/population` | Registered population provenance, or `424` |
 | GET | `/api/v1/community/{location_slug}/settlements` | Registered settlement provenance, or `424` |
@@ -117,6 +122,10 @@ curl -sS "http://localhost:8000/api/v1/jobs/$JOB_ID/status"
 A queued job returns `data.id`, `job_type`, `status:"QUEUED"`, progress, input IDs, parameters and actual timestamps.
 Poll until `COMPLETED`, `FAILED` or `CANCELLED`; never interpret a failed job as a result.
 An empty download body requests a full product subject to size/disk limits. Large products may exceed several gigabytes.
+For forest/wildfire AOI derivatives, add `"additional_polarizations":["HVHV"]` when using HHHH, or the appropriate actual cross term.
+An existing completed acquisition is reused unless `"replace_existing":true` is explicitly supplied. Active transfers are never replaced.
+Raw objects are content-addressed, old files remain intact, and completed download jobs retain their acquisition manifests.
+Changing a study AOI does not silently enlarge an old subset: missing coverage or layers blocks analysis until explicit reacquisition.
 
 Compatibility body:
 

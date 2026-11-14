@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 from geoalchemy2.shape import to_shape
 from shapely.geometry import mapping
 from sqlalchemy import select
@@ -14,6 +14,7 @@ from app.services.nisar.asf_client import ASFClient
 from app.services.nisar.bhoonidhi_client import bhoonidhi_client
 from app.services.nisar.compatibility import compatibility
 from app.services.nisar.scene_metadata import public_metadata
+from app.core.exceptions import FlagwaError
 
 router = APIRouter(tags=["NISAR catalogue"])
 
@@ -40,6 +41,22 @@ def scene_details(scene_id: str, request: Request, db: Session = Depends(get_db)
     record = get_scene(db, scene_id)
     scene = scene_model(record)
     return ok(request, {**scene.model_dump(mode="json"), "metadata": public_metadata(scene.metadata), "download_status": record.download_status})
+
+
+@router.get("/scenes/{scene_id}/inspection")
+def scene_inspection(scene_id: str, request: Request, contains: str = Query("", max_length=100), limit: int = Query(100, ge=1, le=1000),
+                     offset: int = Query(0, ge=0), db: Session = Depends(get_db)):
+    record = get_scene(db, scene_id)
+    inspection = record.metadata_json.get("hdf5")
+    if not inspection:
+        raise FlagwaError("PRODUCT_NOT_INSPECTED", "Acquire and inspect this product before selecting processing datasets", 409)
+    datasets = [item for item in inspection.get("datasets", []) if contains.casefold() in item.get("path", "").casefold()]
+    entries = [{"dataset_path": item["path"], "shape": item.get("shape"), "dtype": item.get("dtype"),
+                "fill_value": item.get("fill_value"), "attributes": public_metadata(item.get("attributes", {}))}
+               for item in datasets[offset:offset + limit]]
+    return ok(request, {"scene_id": scene_id, "kind": "in_product_hdf5_hierarchy_not_server_filesystem",
+                        "datasets": entries, "identification": public_metadata(inspection.get("identification", {})),
+                        "frequency_groups": inspection.get("frequency_groups", [])}, limit=limit, offset=offset, has_more=len(datasets) > offset + limit)
 
 
 def pair_report(db, payload):

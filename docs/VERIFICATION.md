@@ -1,5 +1,8 @@
 # Implementation And Verification Report
 
+**Historical initial-core report.** This records the first implementation stage. The subsequently completed processors,
+current test counts, migration 0003 and current deployment checks are documented in [COMPLETION.md](COMPLETION.md).
+
 Verified in this workspace on **14 November 2026**. No credentials, signed download URLs or invented observations are included here.
 
 ## A. Repository Audit

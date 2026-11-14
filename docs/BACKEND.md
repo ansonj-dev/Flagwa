@@ -7,6 +7,8 @@ research entries with independently unverified boundaries/data availability, not
 **Scientific status:** computation completed does not mean scientifically validated. All current analysis results
 remain `pending_validation`. GCOV difference is not flood depth, deforestation proof, crop yield or ground displacement.
 NISAR launched in 2025 and did not observe Kerala's 2018 floods.
+See [COMPLETION.md](COMPLETION.md) for the current implementation report and [ADVANCED.md](ADVANCED.md) for all six workflows,
+independent validation, context acquisition, reviewed AOIs, recovery and safe optional interpretation.
 
 ## Architecture
 
@@ -110,7 +112,13 @@ uvicorn app.main:app --reload --no-access-log
 celery -A app.workers.celery_app:celery_app worker --loglevel=warning --concurrency=1
 ```
 
-Run the worker in a second terminal. For the complete containerized stack:
+Run the worker in a second terminal.
+
+Run one scheduler in a third terminal for automated stale-job reconciliation:
+
+```bash
+celery -A app.workers.celery_app:celery_app beat --loglevel=warning --schedule storage/celerybeat-schedule --pidfile storage/celerybeat.pid
+```
 
 ```bash
 docker compose up --build -d
@@ -154,9 +162,11 @@ Consult [the official API specification](https://bhoonidhi.nrsc.gov.in/bhoonidhi
 `bhoonidhi@nrsc.gov.in` for access. Insert authorized credentials only into local environment settings.
 
 The independent adapter implements password/refresh grants, expiry-aware token reuse, logout, authorization,
-collection discovery, STAC search, retry/backoff and controlled online-product download. It rejects unverified maturity/filter
-semantics rather than guessing them. Offset pagination is ASF-only; full Bhoonidhi next-link pagination remains outstanding.
-Download redirects are rejected pending verification with authorized access. This adapter has mocked protocol tests, not a live approval test.
+collection discovery, item retrieval, trusted STAC next-link pagination, retry/backoff and controlled streaming downloads.
+It distinguishes expired sessions from forbidden access and follows download redirects only to explicitly vetted hosts in
+`BHOONIDHI_DOWNLOAD_HOSTS`, without forwarding bearer credentials to other hosts. `data_maturity:null` permits discovery of
+explicitly unknown maturity, but analysis still rejects unknown calibration states. Unsupported filter semantics are not guessed.
+This adapter has mocked protocol tests, not a live NRSC approval test.
 
 ## Discovery And Inspection
 
@@ -229,7 +239,9 @@ Results are not calibrated disaster products or emergency-response advice.
 ## Other Context And Exposure
 
 WorldPop/GHSL, OSM settlements/roads, HydroSHEDS, ESA WorldCover, Copernicus DEM, IMERG and official/geoBoundaries boundaries
-can be imported using operator-reviewed local rasters or WGS84 GeoJSON. Automatic ingestion for those sources is not yet implemented.
+can be imported using operator-reviewed local rasters or WGS84 GeoJSON. Provider discovery/import adapters now cover OSM,
+WorldPop, STAC WorldCover/DEM, geoBoundaries and IMERG metadata. Asset imports are explicit, bounded and source-attributed;
+IMERG NetCDF/product-specific processing can still require authorized offline preparation. See [ADVANCED.md](ADVANCED.md).
 All imports require source URL, license/reuse terms, version, retrieval timestamp, CRS, resolution, units and processing notes.
 
 ```bash
@@ -240,7 +252,8 @@ The `ContextRegistration` schema defines the operator metadata contract; `config
 Replace every provenance placeholder with actual dataset information. Population must be counts in `people/pixel`, not a density raster.
 Exposure sums nonnegative pixel-center counts inside candidate polygons, reports valid coverage, and does not extrapolate nodata.
 Vectors support intersection and local metric buffers. An exposed estimate is not the number of people affected.
-Supply `agriculture_class` from a reviewed class legend for categorical agricultural exposure. Automatic context downloads beyond JRC remain outstanding.
+Supply `agriculture_class` from a reviewed class legend for categorical agricultural exposure. Continuous measurement coverage
+is not treated as an impact area. Missing or unavailable sources are never converted into zero exposure or fabricated datasets.
 
 ## API And Frontend
 
@@ -276,22 +289,27 @@ Task completion means generated artifacts passed integrity checks, not that floo
 Transient transfer failures get at most two retries. Failed tasks cannot publish completed results.
 Cancellation is cooperative at transfer/progress and output checkpoints; it never force-kills a worker writing a raster.
 An already-transferred private artifact may remain after late cancellation, but no cancelled scientific result is published.
-Hard worker death requires operator review of the stale job and safe cleanup/requeue; do not blindly retry a partially published run.
+Workers renew owned leases and persist heartbeats. The scheduler marks expired executions FAILED only after the lease is gone;
+old queued executions are failed only with no real broker backlog or active execution. It never silently reruns expensive processing.
+Use the admin retry endpoint to create a new execution while retaining the original terminal record.
 
 Defaults cap requests at 1 MiB, processing at 16 million pixels, full downloads at 50 GB, subset reads at 128 MiB per requested scene,
 and require 1 GB free staging disk. Provider requests have timeouts. Tune for real worker RAM, disk and product size.
 Local source files live under `storage/raw/nisar/`; processed outputs under `storage/processed/`; context under `storage/context/`.
 The API does not offer arbitrary uploads, URL downloads, shell execution or filesystem browsing.
-Only operators should delete abandoned `.partial` files/cache entries after confirming no active job uses them.
+Use `python -m app.cli.maintenance cleanup` to preview abandoned partials; `--apply` is explicit and refused while jobs are active.
+Complete source/processed/context files are never selected. Cache lifecycle and archival retention remain deployment policy decisions.
 
 For S3, set `STORAGE_BACKEND=s3`, bucket, region and either environment credentials or a supported workload IAM role.
+`S3_SERVER_SIDE_ENCRYPTION=AES256` requests AWS-compatible SSE. Set `none` only when your provider uses a separately reviewed
+server-side encryption policy or for isolated local tests. Production custom endpoints must use HTTPS without embedded credentials.
 Use a private bucket, least-privilege permissions, HTTPS, appropriate encryption and lifecycle policies. S3-compatible endpoints are optional.
 API and worker must use the same bucket. Both need bounded local staging space; caches are replaceable, not durable source storage.
 Local-mode deployments need a shared durable disk accessible to both processes. Never assume Render's ephemeral filesystem is permanent.
 
 ## Render
 
-`render.yaml` defines an API, background worker and Redis-compatible service. Supply an external/provisioned PostgreSQL database
+`render.yaml` defines an API, background worker, single scheduler and Redis-compatible service. Supply an external/provisioned PostgreSQL database
 with PostGIS enabled and private S3-compatible storage. The blueprint intentionally does not assume a generic managed database has PostGIS permissions.
 Set `DATABASE_URL`, `ADMIN_API_KEY`, bucket, region, optional storage endpoint/credentials, Earthdata credentials and frontend CORS origin.
 Run `alembic upgrade head` as a release/predeploy operation once, then seed locations. Never run competing migrations from every worker.
@@ -311,7 +329,9 @@ No Render deployment is claimed until the external services, secrets and plan ar
 | `INCOMPATIBLE_SCENES` | Actual HDF5 look direction, orbit/frame, frequency, maturity, release and coverage |
 | `QUALITY_RULE_REQUIRED` | Review the actual mask attributes and product specification |
 | `CONTEXT_NOT_AVAILABLE` | Import a source-attributed context dataset; absence is not zero exposure |
-| `SCIENTIFIC_MODULE_NOT_IMPLEMENTED` | Advanced theme requires its own validated implementation and real suitable products |
+| `WRONG_PRODUCT_TYPE` / `HDF5_LAYER_UNAVAILABLE` | Select the correct GCOV/GOFF/GUNW product and actual inspected datasets |
+| `REFERENCE_NOT_INDEPENDENT` / `REFERENCE_DATA_LEAKAGE` | Validation requires separate held-out evidence, not an input context mask |
+| `SYNTHETIC_VALIDATION_FORBIDDEN` | Synthetic tests cannot be approved as genuine scientific observations |
 | Queue remains queued | Worker environment/broker match, `celery -A app.workers.celery_app:celery_app inspect ping` |
 
 ## Sources

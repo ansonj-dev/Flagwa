@@ -27,3 +27,4 @@ psutil>=6,<8
 pytest>=8,<10
 tenacity>=9,<10
 fsspec[http]>=2025.2
+osm2geojson>=0.3,<1

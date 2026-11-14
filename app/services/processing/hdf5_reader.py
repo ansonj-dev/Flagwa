@@ -64,6 +64,72 @@ def nearest_dataset(group, name):
         current = current.parent
 
 
+def valid_samples(dataset, data):
+    valid = np.isfinite(data)
+    for key in ["_FillValue", "missing_value"]:
+        if key in dataset.attrs:
+            valid &= ~np.isin(data, np.atleast_1d(dataset.attrs[key]))
+    if dataset.id.get_create_plist().fill_value_defined() == h5py.h5d.FILL_VALUE_USER_DEFINED:
+        valid &= data != dataset.fillvalue
+    for key, comparator in [("valid_min", np.greater_equal), ("valid_max", np.less_equal)]:
+        if key in dataset.attrs:
+            valid &= comparator(data, dataset.attrs[key])
+    return valid
+
+
+def read_geocoded(path, aoi, dataset_path, expected_units):
+    inspection = inspect_product(path)
+    known = {item["path"] for item in inspection["datasets"]}
+    if dataset_path not in known or not any(f"/{product}/" in dataset_path for product in ["GUNW", "GOFF"]):
+        raise FlagwaError("HDF5_LAYER_UNAVAILABLE", "Select an inspected GOFF/GUNW dataset, not an external link", 422)
+    with h5py.File(path, "r") as product:
+        dataset = product[dataset_path]
+        if dataset.ndim != 2 or dataset.dtype.kind not in "fiu":
+            raise FlagwaError("UNSUPPORTED_DATASET", "Selected measurement must be a real two-dimensional geocoded layer", 422)
+        units = str(json_value(dataset.attrs.get("units", ""))).lower()
+        if units not in expected_units:
+            raise FlagwaError("UNSUPPORTED_UNITS", "Measurement units are missing or incompatible with this analysis", 422)
+        coordinates_x = np.asarray(nearest_dataset(dataset.parent, "xCoordinates")[()], dtype=float)
+        coordinates_y = np.asarray(nearest_dataset(dataset.parent, "yCoordinates")[()], dtype=float)
+        if len(coordinates_x) < 2 or len(coordinates_y) < 2 or dataset.shape != (len(coordinates_y), len(coordinates_x)):
+            raise FlagwaError("INVALID_GRID", "Coordinate vectors do not match the selected measurement", 422)
+        spacing_x, spacing_y = np.diff(coordinates_x), np.diff(coordinates_y)
+        if not (np.allclose(spacing_x, spacing_x[0]) and np.allclose(spacing_y, spacing_y[0]) and spacing_x[0] > 0 and spacing_y[0] < 0):
+            raise FlagwaError("UNSUPPORTED_GRID", "Measurement grid must be regularly spaced and north-up", 422)
+        crs = CRS.from_epsg(int(nearest_dataset(dataset.parent, "projection")[()]))
+        transformed = transform_geom(4326, crs, aoi)
+        west, south, east, north = shape(transformed).bounds
+        cols = np.flatnonzero((coordinates_x >= west - spacing_x[0] / 2) & (coordinates_x <= east + spacing_x[0] / 2))
+        rows = np.flatnonzero((coordinates_y >= south + spacing_y[0] / 2) & (coordinates_y <= north - spacing_y[0] / 2))
+        if not len(cols) or not len(rows):
+            raise FlagwaError("NO_AOI_COVERAGE", "Measurement does not intersect the study area", 422)
+        height, width = rows[-1] - rows[0] + 1, cols[-1] - cols[0] + 1
+        if height * width > get_settings().max_processing_pixels:
+            raise FlagwaError("PROCESSING_LIMIT", "Measurement subset exceeds the configured pixel limit", 413)
+        data = np.asarray(dataset[rows[0]:rows[-1] + 1, cols[0]:cols[-1] + 1], dtype="float32")
+        transform = from_origin(coordinates_x[cols[0]] - spacing_x[0] / 2,
+                                coordinates_y[rows[0]] - spacing_y[0] / 2, spacing_x[0], -spacing_y[0])
+        valid = valid_samples(dataset, data) & geometry_mask([transformed], data.shape, transform, invert=True)
+        data[~valid] = np.nan
+        return RasterLayer(data, crs, transform, metadata={"dataset": dataset_path, "units": units,
+                           "identification": inspection["identification"], "attributes": {key: json_value(value) for key, value in dataset.attrs.items()}})
+
+
+def scalar_value(path, dataset_path, expected_units):
+    inspection = inspect_product(path)
+    if dataset_path not in {item["path"] for item in inspection["datasets"]}:
+        raise FlagwaError("HDF5_LAYER_UNAVAILABLE", "Selected scalar is absent from the inspected product", 422)
+    with h5py.File(path, "r") as product:
+        dataset = product[dataset_path]
+        units = str(json_value(dataset.attrs.get("units", ""))).lower()
+        if dataset.size != 1 or units not in expected_units:
+            raise FlagwaError("UNSUPPORTED_UNITS", "A scalar with documented compatible units is required", 422)
+        value = float(dataset[()])
+        if not np.isfinite(value):
+            raise FlagwaError("INVALID_MEASUREMENT", "Scalar measurement is not finite", 422)
+        return value
+
+
 def read_gcov(path, aoi, term="HHHH", frequency_group="A", quality_valid_values=None):
     if term not in DIAGONAL_TERMS:
         raise FlagwaError("UNSUPPORTED_COVARIANCE", "Only real-valued diagonal GCOV power terms are supported", 422)
@@ -97,10 +163,7 @@ def read_gcov(path, aoi, term="HHHH", frequency_group="A", quality_valid_values=
             raise FlagwaError("PROCESSING_LIMIT", "AOI exceeds configured raster pixel limit", 413)
         selection = np.s_[rows[0]:rows[-1] + 1, cols[0]:cols[-1] + 1]
         data = np.asarray(dataset[selection], dtype="float32")
-        valid = np.isfinite(data) & (data > 0)
-        for key in ["_FillValue", "missing_value"]:
-            if key in dataset.attrs:
-                valid &= data != dataset.attrs[key]
+        valid = valid_samples(dataset, data) & (data > 0)
         units = json_value(dataset.attrs.get("units", "1"))
         if units not in {"1", "unitless", "unitless power", "linear", "linear power"}:
             raise FlagwaError("UNSUPPORTED_UNITS", "GCOV layer must be linear gamma-zero power, not dB or amplitude", 422)

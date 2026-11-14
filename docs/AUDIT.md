@@ -45,7 +45,8 @@ The existing `.env` was not modified. No user modules or data were removed.
 
 ## Deliberate Scientific Boundaries
 
-Forest, agriculture, glacier, wildfire and deformation have discoverable product contracts and explicit
-nonoperational `501` responses. They do not reuse a flood threshold as a substitute for their distinct science.
+Forest, agriculture, glacier, wildfire and deformation now have distinct executable experimental processors,
+typed request models, queued jobs and export tests. Their capability records explicitly state `operational:false`;
+they do not reuse a flood threshold as a substitute for their distinct science.
 Population and other context layers are not invented when absent. Optional AI is not a source of measurements.
-See the verification report for the exact remaining work; this is not a claim that every requested science theme is implemented.
+See [COMPLETION.md](COMPLETION.md) for the current implementation, real-data evidence, provider limitations and remaining scientific validation.

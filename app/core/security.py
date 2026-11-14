@@ -42,7 +42,8 @@ def trusted_download_url(url: str, provider="ASF"):
     parsed = urlparse(url)
     domains = ("asf.alaska.edu", "earthdatacloud.nasa.gov", "earthdata.nasa.gov") if provider == "ASF" else ("bhoonidhi-api.nrsc.gov.in",)
     hostname = parsed.hostname or ""
-    approved_cdn = provider == "ASF" and hostname in [host.strip() for host in get_settings().asf_cdn_hosts.split(",") if host.strip()]
+    configured_hosts = get_settings().asf_cdn_hosts if provider == "ASF" else get_settings().bhoonidhi_download_hosts
+    approved_cdn = hostname in [host.strip() for host in configured_hosts.split(",") if host.strip()]
     if (parsed.scheme != "https" or parsed.username or parsed.password or parsed.port not in (None, 443)
             or not (approved_cdn or any(hostname == domain or hostname.endswith("." + domain) for domain in domains))):
         raise FlagwaError("UNTRUSTED_PROVIDER_URL", "Provider returned a disallowed download destination", 502)

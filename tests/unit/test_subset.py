@@ -19,3 +19,7 @@ def test_subset_preserves_measurements_quality_codes_and_identity(tmp_path):
         np.testing.assert_array_equal(product["science/LSAR/GCOV/grids/frequencyA/mask"][()], codes)
         assert "not a complete NISAR product" in product.attrs["flagwa_derivative"]
     assert inspect_product(path)["identification"]["granuleId"] == "SYNTHETIC_SUBSET"
+    dual = tmp_path / "synthetic-dual.h5"
+    write_subset(dual, layer, "SYNTHETIC_SUBSET", "A", "HHHH", {"HVHV": layer})
+    with h5py.File(dual, "r") as product:
+        np.testing.assert_allclose(product["science/LSAR/GCOV/grids/frequencyA/HVHV"][()], power)

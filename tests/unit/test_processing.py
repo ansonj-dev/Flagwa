@@ -103,10 +103,11 @@ def test_actual_cog_geojson_and_preview_exports(tmp_path):
     classification = np.array([[0, 1], [2, 3]], dtype="uint8")
     layer = RasterLayer(classification, CRS.from_epsg(32643), from_origin(500000, 1000000, 20, 20))
     raster = tmp_path / "synthetic.tif"
-    write_cog(raster, classification, layer, 0, categorical=True)
+    write_cog(raster, classification, layer, 0, categorical=True, units="class")
     with rasterio.open(raster) as source:
         np.testing.assert_array_equal(source.read(1), classification)
         assert source.tags(ns="IMAGE_STRUCTURE")["LAYOUT"] == "COG"
+        assert source.units == ("class",)
     vector = tmp_path / "synthetic.geojson"
     collection = write_vectors(vector, classification, layer, "synthetic-test")
     assert len(collection["features"]) == 1

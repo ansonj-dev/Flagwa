@@ -11,6 +11,11 @@ from app.database.session import get_db
 from app.models import AnalysisJob, AnalysisResult
 from app.services.nisar.scene_metadata import public_metadata
 from app.services.storage import get_storage
+from app.core.security import expensive_request, require_admin
+from app.models.entities import new_id
+from app.schemas.validation import ValidationRequest
+from app.services.validation import validation_reference
+from app.services.reporting.interpreter import interpret_result
 
 router = APIRouter(tags=["Results and exports"])
 
@@ -39,6 +44,25 @@ def statistics(result_id: UUID, request: Request, db: Session = Depends(get_db))
 def metadata(result_id: UUID, request: Request, db: Session = Depends(get_db)):
     record = get_result(db, result_id)
     return ok(request, public_metadata({key: value for key, value in record.metadata_json.items() if key != "artifacts"}))
+
+
+@router.post("/results/{result_id}/validation", status_code=202, dependencies=[Depends(require_admin), Depends(expensive_request)])
+def request_validation(result_id: UUID, payload: ValidationRequest, request: Request, db: Session = Depends(get_db)):
+    from app.api.v1.jobs import enqueue
+    from app.api.common import job_dict
+
+    result = get_result(db, result_id)
+    validation_reference(db, result, payload)
+    source = db.get(AnalysisJob, result.analysis_job_id)
+    job = AnalysisJob(id=new_id(), location_id=source.location_id, job_type="validation", status="QUEUED",
+                      input_scenes=source.input_scenes, parameters={"result_id": str(result_id), **payload.model_dump(mode="json")})
+    enqueue(db, job)
+    return ok(request, job_dict(job), "Independent-reference assessment queued; no scientific approval is assumed")
+
+
+@router.get("/results/{result_id}/interpretation", dependencies=[Depends(require_admin), Depends(expensive_request)])
+def interpretation(result_id: UUID, request: Request, db: Session = Depends(get_db)):
+    return ok(request, interpret_result(get_result(db, result_id)))
 
 
 def artifact(db, result_id, name, media_type):

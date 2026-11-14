@@ -49,8 +49,9 @@ def process_flood(before_path, after_path, water_path, aoi, request, scenes, job
                   "grid_resolution": [abs(before.transform.a), abs(before.transform.e)]}
     notes = ["Thresholds require independent local calibration and validation; outputs are candidates only.",
              "Flooded vegetation, wet paddy, wind, soil moisture and acquisition geometry can confound open-water thresholds.",
-             "GCOV backscatter does not measure flood depth or ground displacement.",
-             "Draft study boundary may not represent the official floodplain."]
+             "GCOV backscatter does not measure flood depth or ground displacement."]
+    if request.get("_study_boundary", {}).get("status") != "reviewed":
+        notes.append("Draft or unreviewed study boundary may not represent the official floodplain.")
     if before.quality is None or after.quality is None:
         notes.append("At least one product quality mask was missing; nonpermanent valid pixels are marked uncertain.")
     if slope is None:
@@ -65,6 +66,8 @@ def process_flood(before_path, after_path, water_path, aoi, request, scenes, job
                 "algorithm_version": "flagwa-potential-inundation-0.1.0", "parameters": parameters.model_dump(),
                 "software_versions": {name: version(name) for name in ["numpy", "rasterio", "h5py", "pyproj", "asf_search"]},
                 "source_acquisitions": [{"scene_id": scene.scene_id, "acquisition": scene.metadata.get("download", {})} for scene in scenes],
+                "synthetic": bool(request.get("_synthetic_context") or any(scene.metadata.get("synthetic_fixture") or scene.scene_id.startswith("SYNTHETIC") for scene in scenes)),
+                "study_aoi": aoi, "study_boundary": request.get("_study_boundary", {"status": "draft_or_unreviewed"}),
                 "validation_sources": [], "uncertainty_notes": notes, "result_status": "pending_validation",
                 "class_legend": CLASSES, "processing_report": {"before": before.metadata, "after": after.metadata},
                 "context_layers": {"permanent_water": request.get("permanent_water_layer_id"), "slope": request.get("slope_layer_id")}}
@@ -73,10 +76,10 @@ def process_flood(before_path, after_path, water_path, aoi, request, scenes, job
              "geojson": output / "candidates.geojson", "preview": output / "preview.png",
              "summary": output / "summary.json", "report": output / "processing_report.json",
              "before_power": output / "before_power.tif", "after_power": output / "after_power.tif"}
-    write_cog(files["geotiff"], classification, before, 0, categorical=True)
-    write_cog(files["change_geotiff"], change, before, np.nan)
-    write_cog(files["before_power"], before.data, before, np.nan)
-    write_cog(files["after_power"], after.data, before, np.nan)
+    write_cog(files["geotiff"], classification, before, 0, categorical=True, units="class")
+    write_cog(files["change_geotiff"], change, before, np.nan, units="dB")
+    write_cog(files["before_power"], before.data, before, np.nan, units="1")
+    write_cog(files["after_power"], after.data, before, np.nan, units="1")
     vectors = write_vectors(files["geojson"], classification, before, job_id)
     write_preview(files["preview"], classification)
     files["summary"].write_text(json.dumps(scientific_summary(metadata, statistics), indent=2))

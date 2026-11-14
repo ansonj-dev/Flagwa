@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timezone
 from urllib.parse import urlparse
+from shapely.geometry import shape
 
 from app.schemas.catalog import Scene
 
@@ -20,7 +21,19 @@ def polarizations(value):
         return sorted({term for item in value for term in polarizations(item)})
     if not isinstance(value, str):
         return []
+    modes = {"SH": ["HH"], "SV": ["VV"], "DH": ["HH", "HV"], "DV": ["VH", "VV"],
+             "QP": ["HH", "HV", "VH", "VV"], "CR": ["RH", "RV"], "CL": ["LH", "LV"]}
+    if value.upper() in modes:
+        return modes[value.upper()]
     return sorted(set(re.findall(r"(?<![A-Z])[HVLR][HV](?![A-Z])", value.upper())))
+
+
+def footprint_geometry(value):
+    try:
+        geometry = shape(value)
+        return value if geometry.is_valid and not geometry.is_empty and geometry.geom_type in {"Polygon", "MultiPolygon"} else None
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return None
 
 
 def normalize_asf(feature: dict) -> Scene:
@@ -50,7 +63,7 @@ def normalize_asf(feature: dict) -> Scene:
         scene_id=scene_id, dataset=props.get("platform"), product_type=props.get("processingLevel"),
         data_maturity=maturity, acquisition_datetime=parse_datetime(props.get("startTime")),
         processing_datetime=parse_datetime(props.get("processingDate")), flight_direction=props.get("flightDirection"),
-        geometry=feature.get("geometry"), polarizations=polarizations(props.get("mainBandPolarization") or props.get("polarization")),
+        geometry=footprint_geometry(feature.get("geometry")), polarizations=polarizations(props.get("mainBandPolarization") or props.get("polarization")),
         frequency=frequency, source="ASF", download_available=bool(props.get("url")),
         orbit_information={key: props.get(key) for key in ["pathNumber", "frameNumber", "lookDirection", "beamModeType", "rangeBandwidth", "crid"]},
         metadata={"original": feature, "normalization_provenance": provenance},

@@ -1,5 +1,7 @@
 import hashlib
 import shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.parse import urljoin, urlparse
 
 import h5py
@@ -13,7 +15,6 @@ from app.services.nisar.asf_client import ASFClient
 from app.services.nisar.bhoonidhi_client import bhoonidhi_client
 from app.services.nisar.earthdata_auth import earthdata_auth
 from app.services.storage import get_storage
-from app.services.storage.local import LocalStorage
 
 
 def scene_key(scene_id):
@@ -41,12 +42,18 @@ def asf_response(url, range_header=None):
 
 
 def download_scene(scene, progress):
+    temporary_root = get_settings().local_storage_path / "temporary"
+    temporary_root.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(dir=temporary_root, prefix="download-") as directory:
+        return _download_scene(scene, progress, Path(directory))
+
+
+def _download_scene(scene, progress, directory):
     settings, storage = get_settings(), get_storage()
     key = scene_key(scene.scene_id)
     if scene.download_status == "COMPLETED" and scene.file_path and storage.exists(scene.file_path):
         return scene.file_path, scene.metadata_json.get("download", {})
-    scratch = LocalStorage(settings.local_storage_path)
-    target = scratch.path(key + ".partial")
+    target = directory / "product.h5.partial"
     target.parent.mkdir(parents=True, exist_ok=True)
     available = shutil.disk_usage(target.parent).free - settings.min_free_disk_bytes
     if available <= 0:
@@ -76,12 +83,7 @@ def download_scene(scene, progress):
         feature = scene.metadata_json["original"]
         if feature.get("properties", {}).get("Online") != "Y":
             raise FlagwaError("PRODUCT_OFFLINE", "Bhoonidhi product is not online", 409)
-        request = adapter.client.build_request("GET", "/download", params={"id": scene.scene_id, "collection": feature["collection"]},
-                                               headers={"Authorization": f"Bearer {adapter.token()}"})
-        response = adapter.client.send(request, stream=True, follow_redirects=False)
-        if response.status_code != 200:
-            response.close()
-            raise FlagwaError("BHOONIDHI_DOWNLOAD_FAILED", "Bhoonidhi download unavailable or unauthorized; redirects require review", 502)
+        response = adapter.download_response(feature)
         chunks = response.iter_bytes(chunk_size=1024 * 1024)
         declared_size = response.headers.get("Content-Length")
         expected_md5, expected_size = None, None
@@ -106,10 +108,13 @@ def download_scene(scene, progress):
             raise FlagwaError("CHECKSUM_MISMATCH", "Provider checksum did not match downloaded product", 502)
         if not h5py.is_hdf5(target):
             raise FlagwaError("INVALID_PRODUCT", "Download is not an HDF5 product", 422)
+        key = key.replace("/product.h5", f"/{digest.hexdigest()}/product.h5")
         storage.put_file(target, key)
     except (RequestException, httpx.TransportError):
         raise FlagwaError("DOWNLOAD_INTERRUPTED", "Product stream was interrupted; a bounded retry is available", 502) from None
     finally:
         response.close()
         target.unlink(missing_ok=True)
-    return key, {"bytes": size, "sha256": digest.hexdigest(), "provider_md5_verified": bool(expected_md5)}
+    return key, {"mode": "full", "full_product_downloaded": True, "bytes": size, "sha256": digest.hexdigest(),
+                 "checksum_scope": "complete source file", "provider_md5_verified": bool(expected_md5),
+                 "synthetic": scene.scene_id.startswith("SYNTHETIC")}

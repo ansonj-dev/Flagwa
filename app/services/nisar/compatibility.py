@@ -12,15 +12,20 @@ def area(geometry):
 def compatibility(before: Scene, after: Scene, aoi: dict, term="HHHH", frequency_group="A"):
     blockers, warnings = [], []
     checks = {}
+    allowed = {"product_type": {"GCOV", "GSLC", "GUNW", "GOFF", "SME2", "RSLC", "RIFG", "RUNW", "ROFF"},
+               "frequency": {"L", "S"}, "flight_direction": {"ASCENDING", "DESCENDING"},
+               "data_maturity": {"VALIDATED", "PROVISIONAL", "BETA"}}
     for field in ["product_type", "frequency", "flight_direction", "data_maturity"]:
         first, second = getattr(before, field), getattr(after, field)
-        checks[field] = bool(first and second and first == second)
+        checks[field] = first in allowed[field] and second in allowed[field] and first == second
         if not checks[field]:
-            blockers.append(f"Missing or different {field}")
+            blockers.append(f"Missing, unrecognized or different {field}")
     if before.data_maturity == "BETA":
         blockers.append("BETA products are not accepted for this analysis")
     elif before.data_maturity == "PROVISIONAL":
         warnings.append("Provisional input calibration has not been fully validated")
+    elif before.data_maturity != "VALIDATED":
+        blockers.append("Missing or unrecognized product maturity cannot authorize scientific analysis")
     if before.scene_id == after.scene_id or not before.acquisition_datetime or not after.acquisition_datetime:
         blockers.append("Two distinct scenes with known acquisition timestamps are required")
     elif before.acquisition_datetime >= after.acquisition_datetime:
@@ -38,6 +43,17 @@ def compatibility(before: Scene, after: Scene, aoi: dict, term="HHHH", frequency
         available = scene.polarizations if frequency_group == "A" else polarizations(props.get("sideBandPolarization"))
         if term[:2] not in available:
             blockers.append(f"Selected diagonal covariance term is not supported by frequency {frequency_group} metadata")
+        acquisition = scene.metadata.get("download", {})
+        if acquisition.get("mode") == "aoi_subset":
+            terms = acquisition.get("polarizations") or [acquisition.get("polarization")]
+            if term not in terms or acquisition.get("frequency_group") != frequency_group:
+                blockers.append("Requested frequency/covariance term is absent from the acquired subset; explicitly reacquire the required layers")
+            try:
+                coverage = area(shape(acquisition["aoi"]).intersection(shape(aoi))) / area(shape(aoi))
+                if coverage < .98:
+                    blockers.append("Acquired subset no longer covers the requested study AOI; explicit reacquisition is required")
+            except (TypeError, KeyError, ValueError, ZeroDivisionError):
+                blockers.append("Acquired subset coverage cannot be established from its provenance")
     try:
         study, first, second = shape(aoi), shape(before.geometry), shape(after.geometry)
         if not all(geom.is_valid and not geom.is_empty for geom in [study, first, second]):

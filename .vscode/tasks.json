@@ -21,6 +21,13 @@
 			"command": "APP_ENV=development DATABASE_URL=postgresql+psycopg://postgres@127.0.0.1:55432/postgres REDIS_URL=redis://127.0.0.1:56379/0 .venv/bin/celery -A app.workers.celery_app:celery_app worker --loglevel=warning --concurrency=1",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"label": "flagwa: scheduler",
+			"type": "shell",
+			"command": "APP_ENV=development DATABASE_URL=postgresql+psycopg://postgres@127.0.0.1:55432/postgres REDIS_URL=redis://127.0.0.1:56379/0 .venv/bin/celery -A app.workers.celery_app:celery_app beat --loglevel=warning --schedule storage/celerybeat-schedule --pidfile storage/celerybeat.pid",
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }

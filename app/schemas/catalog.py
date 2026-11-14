@@ -16,7 +16,7 @@ class CatalogSearch(BaseModel):
     start: AwareDatetime
     end: AwareDatetime
     product_type: Literal["GCOV", "GSLC", "GUNW", "GOFF", "SME2", "RSLC", "RIFG", "RUNW", "ROFF"] = "GCOV"
-    data_maturity: Literal["VALIDATED", "PROVISIONAL", "BETA"] = "VALIDATED"
+    data_maturity: Literal["VALIDATED", "PROVISIONAL", "BETA"] | None = "VALIDATED"
     frequency: Literal["L", "S"] = "L"
     frequency_group: Literal["A", "B"] = "A"
     flight_direction: Literal["ASCENDING", "DESCENDING"] | None = None
@@ -50,6 +50,8 @@ class CatalogSearch(BaseModel):
             raise ValueError("AOI must be a valid WGS84 Polygon, without holes, at most 400 vertices")
         if (self.provider == "ASF" and self.frequency != "L") or (self.provider == "BHOONIDHI" and self.frequency != "S"):
             raise ValueError("Use ASF for L-band and the separately authorized Bhoonidhi adapter for S-band")
+        if self.provider == "ASF" and self.data_maturity is None:
+            raise ValueError("ASF discovery requires an explicit maturity; search provisional separately")
         return self
 
 
@@ -86,3 +88,11 @@ class DownloadRequest(BaseModel):
     polarization: Literal["HHHH", "HVHV", "VVVV", "VHVH", "RHRH", "RVRV"] = "HHHH"
     frequency_group: Literal["A", "B"] = "A"
     max_remote_mib: int = Field(default=128, ge=4, le=256)
+    additional_polarizations: list[Literal["HHHH", "HVHV", "VVVV", "VHVH", "RHRH", "RVRV"]] = Field(default_factory=list, max_length=5)
+    replace_existing: bool = False
+
+    @model_validator(mode="after")
+    def distinct_terms(self):
+        if self.polarization in self.additional_polarizations or len(set(self.additional_polarizations)) != len(self.additional_polarizations):
+            raise ValueError("Requested covariance terms must be distinct")
+        return self

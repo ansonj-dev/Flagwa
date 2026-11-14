@@ -3,6 +3,8 @@
 Reading Earth's Changing Surface Through Radar.
 
 The modular FastAPI/PostGIS/Celery backend is documented in [docs/BACKEND.md](docs/BACKEND.md).
+The remaining implementation work is recorded in [docs/COMPLETION.md](docs/COMPLETION.md), with six executable scientific workflows,
+independent validation jobs, context adapters, recovery, and safe optional interpretation. Advanced workflows remain experimental, not validated disaster products.
 See [the API contract](docs/API.md), [repository audit](docs/AUDIT.md), and [verification report](docs/VERIFICATION.md)
 for implemented capabilities, actual test results, and scientific limitations. The original audit scripts remain available below.
 

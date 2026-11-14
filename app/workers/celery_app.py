@@ -13,4 +13,5 @@ celery_app.conf.update(
     broker_transport_options={"visibility_timeout": 15000},
     task_publish_retry=False, broker_connection_timeout=3,
     result_expires=86400, worker_hijack_root_logger=False,
+    beat_schedule={"flagwa-reconcile-expired-jobs": {"task": "flagwa.reconcile_jobs", "schedule": 60.0}},
 )
