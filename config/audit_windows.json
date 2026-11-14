@@ -1,0 +1,15 @@
+{
+  "checked_on": "2026-11-14",
+  "product": "NISAR L-band GCOV",
+  "validated": {
+    "start": "2026-10-21",
+    "end": "2026-11-14",
+    "note": "Validated L0-L2 observations available from 2026-10-21 onward as documented on 2026-11-14."
+  },
+  "provisional": {
+    "start": "2026-06-17",
+    "end": "2026-10-22",
+    "note": "The public availability guide states provisional products span 2026-06-17 through partway into 2026-10-23; this conservative query ends on 2026-10-22."
+  },
+  "do_not_mix_maturities_without_review": true
+}

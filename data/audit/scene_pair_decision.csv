@@ -1,0 +1,3 @@
+role,granule_id,acquisition_start_utc,acquisition_end_utc,maturity,processing_level,frequency,polarizations,orbit_direction,relative_orbit_or_track,crid_or_baseline,footprint_coverage,quality_notes,selection_reason
+reference,,,,,,,,,,,,,
+comparison,,,,,,,,,,,,,
