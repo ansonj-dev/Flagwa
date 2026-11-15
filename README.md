@@ -6,13 +6,13 @@
 </p>
 
 <p align="center">
-  <a href="https://www.spaceappschallenge.org/2026/challenges/dancing-with-the-sars/"><img alt="NASA Space Apps Challenge 2026" src="https://img.shields.io/badge/NASA%20Space%20Apps-2026-0B6E99?style=flat-square&logo=nasa&logoColor=white"/></a>
+  <a href="https://www.spaceappschallenge.org/2026/challenges/dancing-with-the-sars/"><img alt="NASA Space Apps Challenge 2026" src="https://img.shields.io/badge/NASA%20Space%20Apps-2026-0B6E99?style=flat-square"/></a>
   <img alt="NISAR" src="https://img.shields.io/badge/Powered%20by-NISAR-176B5B?style=flat-square"/>
   <img alt="FastAPI" src="https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white"/>
   <img alt="React" src="https://img.shields.io/badge/Frontend-React%2019-149ECA?style=flat-square&logo=react&logoColor=white"/>
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
   <img alt="Spatial" src="https://img.shields.io/badge/Spatial-PostGIS-4169E1?style=flat-square"/>
-  <img alt="License" src="https://img.shields.io/badge/License-see%20OPEN_SOURCE.md-lightgrey?style=flat-square"/>
+  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square"/></a>
 </p>
 
 > **The idea:** Earth is always changing. The challenge is learning to distinguish a meaningful surface signal from noise, seasonality, geometry and incomplete evidence—and then explaining what that signal might mean for real places and people.
@@ -28,9 +28,10 @@ It is built around a research question, not a catalogue demo:
 ## A place-led investigation: Kuttanad, Alappuzha, Kerala
 
 <p align="center">
-  <img src="https://www.keralatourism.org/images/picture/large/Kuttanad_Alappuzha_2738.jpg" alt="Kuttanad's green paddy landscape, waterways and homes in Alappuzha, Kerala" width="100%"/>
-  <br/><em>Kuttanad — Kerala's rice bowl, where fields, canals, backwaters and settlements form one connected landscape. Image: Kerala Tourism.</em>
+  <em>Kuttanad — Kerala's rice bowl, where fields, canals, backwaters and settlements form one connected landscape.</em>
 </p>
+
+For regional context, see the <a href="https://www.keralatourism.org/photo-gallery/kuttanad-rice-bowl-of-kerala-alappuzha/2738">Kerala Tourism Kuttanad gallery</a>. The gallery is linked as a reference only; its photograph is not embedded or redistributed here.
 
 Our flagship study begins close to home: **Kuttanad in Alappuzha district, Kerala, India**. This is not simply a convenient point on a map. It is a distinctive low-lying wetland and agricultural landscape where water, paddy cultivation, canals, rivers, settlements and engineered water management are tightly connected.
 
@@ -271,7 +272,7 @@ The essential contribution is not merely calling a catalogue endpoint. It is mak
 
 NISAR data access and product descriptions are maintained by NASA/ASF and ISRO/NRSC. Supplemental datasets retain source metadata, versions, access dates and reuse terms in the context registry where imported. A dataset's availability does not automatically grant unrestricted redistribution.
 
-The repository did not contain a formal top-level software licence declaration at the time of this documentation update. **Until a licence is added, do not assume that source code may be reused, modified or redistributed under an open-source licence.** Data and imagery carry separate terms. See [Data Sources & Attribution](docs/DATA_SOURCES.md) and [Open-source status](docs/OPEN_SOURCE.md).
+**Original FLAGWA code and project documentation authored by Anson Joseph are licensed under the [Apache License, Version 2.0](LICENSE) (SPDX: Apache-2.0).** The licence is OSI-approved and is the default licence identified in the 2026 NASA Space Apps Participant Terms when a participant does not specify another OSI-compliant licence. Third-party datasets, imagery, basemap services and software dependencies are not relicensed by this file; they retain their own terms and attribution requirements. Review [Third-party notices](docs/THIRD_PARTY_NOTICES.md), [Data Sources & Attribution](docs/DATA_SOURCES.md) and [Open-source status](docs/OPEN_SOURCE.md).
 
 ---
 

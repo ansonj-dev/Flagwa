@@ -64,3 +64,8 @@ When publishing a map, report, screenshot or export:
 ## Current historical evidence
 
 The completion/audit documents record a real JRC permanent-water import and ESA WorldCover 2021 context for the original Kuttanad workflow, while several other desired context layers were unavailable or had unresolved licence/access status at that time. See [Completion](COMPLETION.md) and [Kuttanad Study](KUTTANAD_STUDY.md). Re-query the current context registry before asserting current availability.
+
+
+## Licence register
+
+For known third-party media, basemap services, dependency manifests and Space Apps submission checks, see [Third-party Notices](THIRD_PARTY_NOTICES.md). The project-wide Apache-2.0 grant does not relicense those materials.

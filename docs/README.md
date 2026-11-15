@@ -35,6 +35,7 @@ Commands are written from the repository root unless a guide says otherwise. Pro
 - [User Guide](USER_GUIDE.md) — Story, Explorer, Radar Lab, Groundwire, Earthscore and workbench workflows.
 - [Scientific Workflows](ADVANCED.md) — NISAR product concepts, inputs, theme-specific methods, uncertainty and validation gates.
 - [Data Sources & Attribution](DATA_SOURCES.md) — dataset/provider roles, provenance fields, licensing and citation expectations.
+- [Third-party Notices](THIRD_PARTY_NOTICES.md) — known third-party media, map services, data sources, dependency manifests and Space Apps submission checks.
 - [Roadmap & Research Agenda](ROADMAP.md) — proposed next steps, dependencies and acceptance criteria.
 
 ### Engineering
