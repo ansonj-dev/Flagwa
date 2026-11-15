@@ -14,6 +14,8 @@ import type {
   OperatorSession,
   Providers,
   Scene,
+  JsonRecord,
+  ResultMetadata,
 } from "../types/domain";
 export const api = createApiClient(
   import.meta.env.VITE_FLAGWA_API_BASE_URL || "/backend",
@@ -41,12 +43,14 @@ export const useCases = () =>
       api.get<CaseStudy[]>("/api/v1/case-studies", signal),
     staleTime: 300_000,
   });
-export const useResults = () =>
+export const useResults = (poll = false) =>
   useQuery({
     queryKey: ["results"],
     queryFn: ({ signal }) =>
       api.get<AnalysisResult[]>("/api/v1/results?limit=100", signal),
     staleTime: 30_000,
+    refetchInterval: poll ? 30_000 : false,
+    refetchIntervalInBackground: false,
   });
 export const useProviders = () =>
   useQuery({
@@ -80,6 +84,33 @@ export const useResult = (id?: string) =>
       api.get<AnalysisResult>(`/api/v1/results/${id}`, signal),
     enabled: Boolean(id),
     staleTime: 60_000,
+  });
+export const useResultMetadata = (id?: string) =>
+  useQuery({
+    queryKey: ["result-metadata", id],
+    queryFn: ({ signal }) =>
+      api.get<ResultMetadata>(`/api/v1/results/${id}/metadata`, signal),
+    enabled: Boolean(id),
+    retry: retryQuery,
+    staleTime: 60_000,
+  });
+export const useResultStatistics = (id?: string) =>
+  useQuery({
+    queryKey: ["result-statistics", id],
+    queryFn: ({ signal }) =>
+      api.get<JsonRecord>(`/api/v1/results/${id}/statistics`, signal),
+    enabled: Boolean(id),
+    retry: retryQuery,
+    staleTime: 60_000,
+  });
+export const useScene = (id?: string) =>
+  useQuery({
+    queryKey: ["scene", id],
+    queryFn: ({ signal }) =>
+      api.get<Scene>(`/api/v1/scenes/${encodeURIComponent(id!)}`, signal),
+    enabled: Boolean(id),
+    retry: retryQuery,
+    staleTime: 300_000,
   });
 export function useSourceScenes(result?: AnalysisResult) {
   return useQueries({

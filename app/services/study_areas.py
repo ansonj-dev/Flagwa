@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from geoalchemy2.shape import from_shape, to_shape
 from shapely.geometry import mapping, shape
@@ -18,9 +19,12 @@ def study_context(session, location):
     provenance = {"status": "draft_or_unreviewed", "description": location.description}
     if layer and layer.metadata_json.get("study_boundary_geometry"):
         if shape(layer.metadata_json["study_boundary_geometry"]).equals(shape(geometry)):
-            provenance = {"status": "reviewed", "source_layer_id": layer.id, "source": layer.source, "version": layer.version,
-                          "source_url": layer.metadata_json["source_url"], "license": layer.metadata_json["license"],
-                          "reviewed_by": layer.metadata_json["reviewed_by"], "reviewed_at": layer.metadata_json["reviewed_at"]}
+            metadata = layer.metadata_json
+            provenance = {"status": "draft_or_unreviewed", "source_layer_id": layer.id, "source": layer.source,
+                          "version": layer.version, "source_url": metadata["source_url"], "license": metadata["license"],
+                          "description": location.description}
+            if metadata.get("reviewed_by") and metadata.get("reviewed_at"):
+                provenance.update(status="reviewed", reviewed_by=metadata["reviewed_by"], reviewed_at=metadata["reviewed_at"])
     return geometry, provenance
 
 
@@ -54,8 +58,53 @@ def set_study_area(session, path, registration, reviewed_by, feature_id=None):
         layer.metadata_json = dict(layer.metadata_json, study_boundary_active=False)
     layer = register_context(session, path, registration, commit=False)
     layer.metadata_json = dict(layer.metadata_json, study_boundary_active=True, study_boundary_geometry=mapping(polygon),
-                               reviewed_by=reviewed_by, reviewed_at=utcnow().isoformat())
+                               boundary_status="reviewed", reviewed_by=reviewed_by, reviewed_at=utcnow().isoformat())
     location.geometry = from_shape(polygon, srid=4326)
     location.description = f"Operator-reviewed study boundary from {registration.source}, version {registration.version}; not an observed hazard extent"
+    session.commit()
+    return layer
+
+
+def set_draft_study_area(session, path, registration, feature_id=None):
+    if registration.layer_type != "boundaries" or registration.crs not in {"EPSG:4326", "OGC:CRS84"}:
+        raise FlagwaError("BOUNDARY_SOURCE_REQUIRED", "A sourced WGS84 boundary registration is required", 422)
+    location = session.scalar(select(Location).where(Location.slug == registration.location_slug).with_for_update())
+    if not location:
+        raise FlagwaError("LOCATION_NOT_FOUND", "Location was not found", 404)
+    active = session.scalar(select(func.count()).select_from(AnalysisJob).where(
+        or_(AnalysisJob.location_id == location.id, AnalysisJob.parameters.contains({"location_slug": location.slug})),
+        AnalysisJob.status.in_(["QUEUED", "RUNNING", "VALIDATING"])))
+    if active:
+        raise FlagwaError("AOI_JOBS_ACTIVE", "Study boundaries cannot be changed while related jobs are active", 409)
+    path = Path(path)
+    if path.stat().st_size > 64 * 1024 * 1024:
+        raise FlagwaError("BOUNDARY_SIZE_LIMIT", "Boundary GeoJSON exceeds the 64 MiB operator limit", 413)
+    collection = json.loads(path.read_text())
+    features = collection.get("features", [])
+    if feature_id is not None:
+        features = [feature for feature in features if str(feature.get("id", feature.get("properties", {}).get("shapeID"))) == feature_id]
+    if len(features) != 1:
+        raise FlagwaError("BOUNDARY_SELECTION_REQUIRED", "Supply one GeoJSON feature or choose an actual --feature-id", 422)
+    feature = features[0]
+    polygon = shape(feature["geometry"])
+    west, south, east, north = polygon.bounds if not polygon.is_empty else (0, 0, 0, 0)
+    if not polygon.is_valid or polygon.geom_type not in {"Polygon", "MultiPolygon"} or not (-180 <= west < east <= 180 and -90 <= south < north <= 90):
+        raise FlagwaError("BOUNDARY_INVALID", "Study area must be a valid nonempty WGS84 polygon or multipolygon", 422)
+    prior = session.scalars(select(ContextLayer).where(ContextLayer.location_id == location.id,
+        ContextLayer.layer_type == "boundaries", ContextLayer.metadata_json.contains({"study_boundary_active": True}))).all()
+    for layer in prior:
+        layer.metadata_json = dict(layer.metadata_json, study_boundary_active=False)
+    selected_id = str(feature.get("id", feature.get("properties", {}).get("shapeID", ""))) or None
+    selected = {"type": "FeatureCollection", "features": [feature]}
+    with TemporaryDirectory(prefix="draft-aoi-") as directory:
+        selected_path = Path(directory) / "study-boundary.geojson"
+        selected_path.write_text(json.dumps(selected))
+        layer = register_context(session, selected_path, registration, commit=False)
+    layer.metadata_json = dict(layer.metadata_json, study_boundary_active=True, study_boundary_geometry=mapping(polygon),
+                               boundary_status="draft_or_unreviewed", source_feature_id=selected_id,
+                               source_feature_properties=feature.get("properties", {}))
+    location.geometry = from_shape(polygon, srid=4326)
+    feature_name = feature.get("properties", {}).get("shapeName") or feature.get("properties", {}).get("name") or selected_id or "selected source feature"
+    location.description = f"Draft, unreviewed study area from {registration.source} feature {feature_name}, version {registration.version}; not an observed hazard extent"
     session.commit()
     return layer

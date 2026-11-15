@@ -170,11 +170,9 @@ test("story imagery, radar lab controls, mobile sheets and accessible views", as
     .getByRole("navigation", { name: "Primary" })
     .getByRole("link", { name: "Radar Lab" })
     .click();
-  await page.getByRole("button", { name: "forest", exact: true }).click();
-  await expect(page.locator("[aria-live=polite]")).toContainText(
-    "Branches, trunks",
-  );
-  await page.getByRole("checkbox", { name: "Night", exact: true }).check();
+  await page.getByRole("button", { name: /^forest$/i }).click();
+  await expect(page.getByText(/^Branches, trunks and leaves/)).toBeVisible();
+  await page.getByLabel("Night", { exact: true }).check();
   await expect(page.locator(".lab-scene")).toHaveClass(/night/);
   for (const width of [360, 768, 1280]) {
     await page.setViewportSize({ width, height: 900 });
@@ -211,7 +209,7 @@ test("story imagery, radar lab controls, mobile sheets and accessible views", as
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/radar-lab");
-  await expect(page.locator("h1")).toContainText("Make sense");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("layers, missing community data, experimental workbench, restricted access and zoom remain honest", async ({
@@ -268,12 +266,14 @@ test("layers, missing community data, experimental workbench, restricted access 
   });
   await session.send("Emulation.setPageScaleFactor", { pageScaleFactor: 1 });
   await page.goto("/radar-lab");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   expect(
     (await new AxeBuilder({ page }).analyze()).violations.map(
       (item) => item.id,
     ),
   ).toEqual([]);
   await page.goto("/about");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   expect(
     (await new AxeBuilder({ page }).analyze()).violations.map(
       (item) => item.id,

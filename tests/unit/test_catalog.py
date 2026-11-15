@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import httpx
 import pytest
 from pydantic import ValidationError
-from shapely.geometry import box, mapping
+from shapely.geometry import MultiPolygon, Polygon, box, mapping
 
 from app.core.config import Settings
 from app.core.exceptions import FlagwaError
@@ -53,6 +53,16 @@ def test_query_rejects_invalid_polarization_and_geometry():
     for changes in [{"polarization": "WRONG"}, {"bbox": (77, 10, 76, 9)}, {"frequency": "S"}]:
         with pytest.raises(ValidationError):
             CatalogSearch(**(kwargs | changes))
+
+
+def test_query_accepts_bounded_multipolygon_and_rejects_holes():
+    kwargs = dict(start="2026-10-01T00:00:00Z", end="2026-11-01T00:00:00Z")
+    multipolygon = mapping(MultiPolygon([box(106.7, -6.2, 106.8, -6.1), box(106.9, -6.2, 107.0, -6.1)]))
+    assert CatalogSearch(**(kwargs | {"aoi": multipolygon})).aoi["type"] == "MultiPolygon"
+    holed = mapping(Polygon([(106.7, -6.2), (107.0, -6.2), (107.0, -6.1), (106.7, -6.1), (106.7, -6.2)],
+                            [[(106.8, -6.19), (106.9, -6.19), (106.9, -6.11), (106.8, -6.11), (106.8, -6.19)]]))
+    with pytest.raises(ValidationError):
+        CatalogSearch(**(kwargs | {"aoi": holed}))
 
 
 def test_provider_failure_is_not_empty_success(monkeypatch):

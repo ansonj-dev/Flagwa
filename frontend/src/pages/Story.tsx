@@ -24,6 +24,10 @@ export function Story() {
     cases = useCases(),
     results = useResults(),
     slug = useExplorer((state) => state.selectedLocation);
+  const earthscoreResult = results.data?.find(
+    (result) => resultLocation(result) === slug && !result.metadata.synthetic,
+  );
+  const earthscoreDates = earthscoreResult?.metadata.acquisition_dates ?? [];
   const reveal = {
     initial: { opacity: 0, y: reduced ? 0 : 22 },
     whileInView: { opacity: 1, y: 0 },
@@ -35,7 +39,7 @@ export function Story() {
       <SiteHeader />
       <section className="earth-hero" aria-labelledby="hero-title">
         <div className="hero-shade" />
-        <motion.div className="hero-copy" {...reveal}>
+        <div className="hero-copy">
           <span className="eyebrow">
             <span className="signal-dot" /> NASA–ISRO NISAR · L-BAND RADAR
           </span>
@@ -60,7 +64,7 @@ export function Story() {
               Discover the science <ArrowRight size={16} />
             </Link>
           </div>
-        </motion.div>
+        </div>
         <div className="hero-coordinates mono">
           GLOBAL SURFACE CHANGE EXPLORER
           <br />
@@ -71,9 +75,73 @@ export function Story() {
           <br />
           Not a NISAR measurement
         </p>
-        <a className="scroll-cue" href="#signal">
-          <ArrowDown size={18} /> Follow the signal
+        <a className="scroll-cue" href="#earthscore">
+          <ArrowDown size={18} /> Follow the Earthscore
         </a>
+      </section>
+      <section
+        id="earthscore"
+        className="earthscore-feature"
+        aria-labelledby="earthscore-feature-title"
+      >
+        <motion.div {...reveal}>
+          <span className="eyebrow">
+            THE FLAGWA SIGNATURE / ARTISTIC ENCODING
+          </span>
+          <h2 id="earthscore-feature-title">
+            THE EARTHSCORE<span>.</span>
+          </h2>
+          <p>Experience the rhythms of a changing Earth.</p>
+          <p className="earthscore-feature-note">
+            An artistic encoding of actual NISAR measurements. Scientific
+            uncertainty stays part of the composition.
+          </p>
+          <Link
+            className="primary-button"
+            to={
+              earthscoreResult
+                ? `/earthscore/${slug}/results/${earthscoreResult.id}`
+                : `/earthscore/${slug}`
+            }
+          >
+            Experience THE EARTHSCORE <ArrowUpRight size={17} />
+          </Link>
+        </motion.div>
+        <div className="earthscore-feature-source">
+          {earthscoreDates.length >= 2 ? (
+            <>
+              <span className="eyebrow">
+                {earthscoreResult?.metadata.location} / {earthscoreDates.length}{" "}
+                ACTUAL ACQUISITIONS
+              </span>
+              <ol>
+                <li>
+                  <span>01 / REFERENCE</span>
+                  <time dateTime={earthscoreDates[0]}>
+                    {formatDate(earthscoreDates[0])}
+                  </time>
+                </li>
+                <li>
+                  <span>02 / OBSERVATION</span>
+                  <time dateTime={earthscoreDates.at(-1)}>
+                    {formatDate(earthscoreDates.at(-1))}
+                  </time>
+                </li>
+                <li>
+                  <span>03 / CHANGE</span>
+                  <strong>Derived interval</strong>
+                  <small>Not another acquisition</small>
+                </li>
+              </ol>
+              <p>Observed. Derived. Interpreted. Never invented.</p>
+            </>
+          ) : (
+            <p>
+              Only completed scientific results can become a score. Missing
+              observations remain visible gaps.
+            </p>
+          )}
+        </div>
       </section>
       <section id="signal" className="story-section signal-section">
         <motion.div {...reveal} className="section-intro">

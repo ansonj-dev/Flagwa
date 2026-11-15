@@ -41,13 +41,15 @@ class CatalogSearch(BaseModel):
         try:
             polygon = shape(self.aoi)
             west, south, east, north = polygon.bounds
-            valid = (polygon.geom_type == "Polygon" and polygon.is_valid and not polygon.is_empty
-                     and not polygon.interiors and -180 <= west < east <= 180 and -90 <= south < north <= 90
-                     and len(polygon.exterior.coords) <= 400)
+            parts = [polygon] if polygon.geom_type == "Polygon" else list(polygon.geoms) if polygon.geom_type == "MultiPolygon" else []
+            vertices = sum(len(part.exterior.coords) for part in parts)
+            valid = (bool(parts) and polygon.is_valid and not polygon.is_empty
+                     and all(part.is_valid and not part.interiors for part in parts)
+                     and -180 <= west < east <= 180 and -90 <= south < north <= 90 and vertices <= 400)
         except (ValueError, TypeError, KeyError):
             valid = False
         if not valid:
-            raise ValueError("AOI must be a valid WGS84 Polygon, without holes, at most 400 vertices")
+            raise ValueError("AOI must be a valid WGS84 Polygon or MultiPolygon, without holes, at most 400 vertices")
         if (self.provider == "ASF" and self.frequency != "L") or (self.provider == "BHOONIDHI" and self.frequency != "S"):
             raise ValueError("Use ASF for L-band and the separately authorized Bhoonidhi adapter for S-band")
         if self.provider == "ASF" and self.data_maturity is None:

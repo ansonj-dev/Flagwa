@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Map, AttributionControl } from "maplibre-gl";
+import { Map, AttributionControl } from "./maplibre";
 import type { GeoJSONSource, StyleSpecification } from "maplibre-gl";
 import type { Geometry, Position, FeatureCollection } from "geojson";
 import {
@@ -95,6 +95,7 @@ interface Props {
   scenes: Scene[];
   candidates?: FeatureCollection;
   community?: FeatureCollection;
+  labLayer?: "result" | "before" | "after" | "change";
 }
 export function MapCanvas({
   location,
@@ -103,6 +104,7 @@ export function MapCanvas({
   scenes,
   candidates,
   community,
+  labLayer,
 }: Props) {
   const root = useRef<HTMLDivElement>(null),
     comparison = useRef<HTMLDivElement>(null),
@@ -114,15 +116,24 @@ export function MapCanvas({
     [idle, setIdle] = useState(false),
     [mapError, setMapError] = useState(""),
     [coordinate, setCoordinate] = useState<[number, number] | null>(null);
-  const {
-    layers,
-    opacity,
-    compare,
-    swipe,
-    selectedObservation,
-    setViewport,
-    setFeature,
-  } = useExplorer();
+  const explorer = useExplorer();
+  const embedded = Boolean(labLayer);
+  const layers: Record<string, boolean> = embedded
+    ? {
+        classification: labLayer === "result" || labLayer === "change",
+        change: labLayer === "change",
+        boundary: true,
+      }
+    : explorer.layers;
+  const opacity = embedded ? 1 : explorer.opacity;
+  const compare = embedded ? false : explorer.compare;
+  const swipe = explorer.swipe;
+  const selectedObservation = embedded
+    ? labLayer === "before"
+      ? 0
+      : 1
+    : explorer.selectedObservation;
+  const { setViewport, setFeature } = explorer;
   const geometry = result?.metadata.study_aoi ?? location?.geometry;
   const fit = () => {
     const bounds = boundsOf(geometry);
@@ -131,12 +142,14 @@ export function MapCanvas({
       : 850;
     if (bounds)
       mapRef.current?.fitBounds(bounds, {
-        padding: {
-          top: 120,
-          bottom: 145,
-          left: 100,
-          right: innerWidth > 1000 ? 425 : 50,
-        },
+        padding: embedded
+          ? { top: 45, bottom: 65, left: 45, right: 45 }
+          : {
+              top: 120,
+              bottom: 145,
+              left: 100,
+              right: innerWidth > 1000 ? 425 : 50,
+            },
         duration,
         maxZoom: 15,
       });
@@ -178,9 +191,13 @@ export function MapCanvas({
         pitch: map.getPitch(),
       });
     });
-    map.on("moveend", () =>
-      setViewport(map.getCenter().toArray() as [number, number], map.getZoom()),
-    );
+    map.on("moveend", () => {
+      if (!embedded)
+        setViewport(
+          map.getCenter().toArray() as [number, number],
+          map.getZoom(),
+        );
+    });
     map.on("idle", () => setIdle(true));
     map.on("sourcedataloading", () => setIdle(false));
     map.on("click", (event) => {
@@ -191,7 +208,7 @@ export function MapCanvas({
       const feature = available.length
         ? map.queryRenderedFeatures(event.point, { layers: available })[0]
         : undefined;
-      setFeature(feature?.properties ?? null);
+      if (!embedded) setFeature(feature?.properties ?? null);
     });
     map.on("error", (event) => {
       if (event.error.message.includes("WebGL"))
@@ -213,7 +230,7 @@ export function MapCanvas({
       rasterEvents.removeEventListener("raster-error", onError);
       rasterEvents.removeEventListener("raster-ready", onReady);
     };
-  }, [satellite, setViewport, setFeature]);
+  }, [satellite, setViewport, setFeature, embedded]);
   useEffect(() => {
     if (ready) fit();
   }, [ready, location?.slug, result?.id]);
@@ -252,13 +269,16 @@ export function MapCanvas({
       ? measurementStyle(result, Boolean(layers.change))
       : null;
     for (const [index, target] of maps.entries()) {
-      const observation = compare
-        ? index === 0
-          ? manifest?.layers.after_power
-          : manifest?.layers.before_power
-        : selectedObservation === 0
-          ? manifest?.layers.before_power
-          : manifest?.layers.after_power;
+      const observation =
+        embedded && (labLayer === "result" || labLayer === "change")
+          ? undefined
+          : compare
+            ? index === 0
+              ? manifest?.layers.after_power
+              : manifest?.layers.before_power
+            : selectedObservation === 0
+              ? manifest?.layers.before_power
+              : manifest?.layers.after_power;
       if (observation) {
         target.addSource("observation", {
           type: "raster",
@@ -283,7 +303,12 @@ export function MapCanvas({
           },
         });
       }
-      if (result && !compare && measurement) {
+      if (
+        result &&
+        !compare &&
+        measurement &&
+        (!embedded || layers.classification)
+      ) {
         target.addSource("measurement", {
           type: "raster",
           tiles: [
@@ -385,6 +410,7 @@ export function MapCanvas({
     selectedObservation,
     satellite,
     layers.change,
+    labLayer,
   ]);
   useEffect(() => {
     for (const target of [mapRef.current, comparisonRef.current]) {

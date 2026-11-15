@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--location", default="kuttanad")
     parser.add_argument("--country", default="IND")
     parser.add_argument("--layer", default="settlements", choices=["settlements", "infrastructure", "hydrology"])
-    parser.add_argument("--boundary-level", default="ADM2", choices=["ADM0", "ADM1", "ADM2"])
+    parser.add_argument("--boundary-level", default="ADM2", choices=["ADM0", "ADM1", "ADM2", "ADM3"])
     parser.add_argument("--collection-id")
     parser.add_argument("--start")
     parser.add_argument("--end")

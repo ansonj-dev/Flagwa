@@ -463,6 +463,40 @@ def test_reviewed_aoi_refuses_active_jobs_and_preserves_snapshots(integration_en
         assert shape(session.get(AnalysisJob, identifier).parameters["_study_aoi"]).equals(snapshot)
 
 
+def test_sourced_draft_aoi_preserves_provenance_without_claiming_review(integration_environment, tmp_path):
+    import json
+    from geoalchemy2.shape import to_shape
+    from shapely.geometry import box, mapping, shape
+    from sqlalchemy import select
+    from app.models import Location
+    from app.schemas.analysis import ContextRegistration
+    from app.services.study_areas import set_draft_study_area, study_context
+
+    inputs = synthetic_inputs(tmp_path)
+    polygon = box(76.27, 9.22, 76.53, 9.48)
+    feature = {"type": "Feature", "id": "fixture-source-id", "geometry": mapping(polygon),
+               "properties": {"shapeName": "Synthetic source feature"}}
+    boundary = tmp_path / "source_boundary.geojson"
+    boundary.write_text(json.dumps({"type": "FeatureCollection", "features": [feature]}))
+    registration = ContextRegistration(location_slug=inputs["location_slug"], layer_type="boundaries", source="Synthetic boundary fixture",
+        source_url="https://example.org/boundaries", license="Synthetic test terms", version="fixture-v1",
+        retrieved_at="2026-11-15T00:00:00Z", crs="EPSG:4326", resolution="vector", units="features",
+        processing_notes="Synthetic fixture verifies draft provenance only", is_synthetic=True)
+    with session_factory() as session:
+        layer = set_draft_study_area(session, boundary, registration)
+        location = session.scalar(select(Location).where(Location.slug == inputs["location_slug"]))
+        actual, provenance = study_context(session, location)
+        assert shape(actual).equals(polygon)
+        assert shape(to_shape(location.geometry)).equals(polygon)
+        assert provenance["status"] == "draft_or_unreviewed"
+        assert provenance["source_layer_id"] == layer.id
+        assert provenance["source"] == registration.source
+        assert provenance["license"] == registration.license
+        assert "reviewed_by" not in provenance
+        assert layer.metadata_json["boundary_status"] == "draft_or_unreviewed"
+        assert layer.metadata_json["source_feature_id"] == "fixture-source-id"
+
+
 @pytest.mark.parametrize("backlog", [0, 1])
 def test_queued_message_loss_is_distinct_from_real_broker_backlog(integration_environment, backlog):
     from types import SimpleNamespace

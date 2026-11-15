@@ -426,6 +426,19 @@ export function Explorer() {
           </Link>
           <Link to="/radar-lab">Radar Lab</Link>
         </nav>
+        <Link
+          className="earthscore-shortcut"
+          aria-label="Open THE EARTHSCORE"
+          title="THE EARTHSCORE"
+          to={
+            result
+              ? `/earthscore/${slug}/results/${result.id}`
+              : `/earthscore/${slug}`
+          }
+        >
+          <Radio size={17} />
+          <span>Earthscore</span>
+        </Link>
         <span
           className={`connection ${readiness.isSuccess ? "" : "offline"}`}
           title={

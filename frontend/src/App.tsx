@@ -22,6 +22,16 @@ const RadarLab = lazy(() =>
 const About = lazy(() =>
   import("./pages/About").then((module) => ({ default: module.About })),
 );
+const Earthscore = lazy(() =>
+  import("./pages/Earthscore").then((module) => ({
+    default: module.Earthscore,
+  })),
+);
+const Groundwire = lazy(() =>
+  import("./pages/Groundwire").then((module) => ({
+    default: module.Groundwire,
+  })),
+);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: retryQuery, refetchOnWindowFocus: false },
@@ -58,7 +68,11 @@ function ScrollReset() {
       ? "Explore · FLAGWA"
       : pathname === "/radar-lab"
         ? "Radar Lab · FLAGWA"
-        : "FLAGWA · Global Surface Change Explorer";
+        : pathname === "/groundwire"
+          ? "Groundwire · FLAGWA"
+          : pathname.startsWith("/earthscore")
+            ? "THE EARTHSCORE · FLAGWA"
+            : "FLAGWA · Global Surface Change Explorer";
   }, [pathname]);
   return null;
 }
@@ -89,7 +103,17 @@ export default function App() {
                 element={<Explorer />}
               />
               <Route path="/radar-lab" element={<RadarLab />} />
+              <Route path="/groundwire" element={<Groundwire />} />
               <Route path="/about" element={<About />} />
+              <Route path="/earthscore" element={<Earthscore />} />
+              <Route
+                path="/earthscore/:locationSlug"
+                element={<Earthscore />}
+              />
+              <Route
+                path="/earthscore/:locationSlug/results/:resultId"
+                element={<Earthscore />}
+              />
               <Route
                 path="*"
                 element={

@@ -74,6 +74,27 @@ Administrative writes accept `X-Admin-Key`. Never distribute this secret in fron
 key accepts direct loopback only. Exports are public research artifacts of existing completed result records, not arbitrary object-storage access.
 No public upload or remote-URL download parameter exists.
 
+## Radar Lab Read-Only Integration
+
+The existing frontend `/radar-lab?mode=observations` composes the routes above; it does not
+add a Radar Lab API or trigger product acquisition/processing. It reads locations, case studies,
+completed results, individual result/metadata/statistics, source-scene details and inspection.
+PNG/GeoTIFF/GeoJSON/summary assets are checked with bounded byte-range reads before use.
+The frontend's existing optional `/gateway/results/{result_id}/layers` manifest supplies only
+published prepared artifacts; it is not a new FastAPI route.
+
+Scene `polarizations` describe catalogue channels (for example HH/HV). Available acquired
+GCOV power terms must instead be identified from actual inspection `dataset_path` values in
+the selected `frequency_groups`; catalogue channel presence does not prove an acquired term.
+Inspection paths are in-product HDF5 hierarchy addresses, not renderable URLs. This browser
+requests up to 1,000 inspection entries, explicitly labels the bound and filters returned paths.
+
+Radar Lab uses actual reported statistics/units for spatial summaries, never fabricated temporal
+series. GUNW phase/reference and GOFF range/azimuth inputs remain distinct from GCOV changes;
+ancillary rasters are unavailable unless an existing public asset exposes them. Source data
+maturity is not result validation: the current genuine Kuttanad records remain `pending_validation`.
+Missing records/assets/inspection/context have explicit unavailable states; HTTP 424 is not a zero estimate.
+
 ## Examples
 
 ```bash

@@ -41,7 +41,7 @@ class ContextProviders:
 
     @retry(retry=retry_if_exception_type((TemporaryContextError, httpx.TransportError)),
            wait=wait_exponential(multiplier=1, max=5), stop=stop_after_attempt(3), reraise=True)
-    def _json(self, method, url, **kwargs):
+    def _json(self, method, url, max_response_bytes=32 * 1024 * 1024, **kwargs):
         for redirect in range(5):
             public_url(url)
             with self.client.stream(method, url, **kwargs) as response:
@@ -57,17 +57,19 @@ class ContextProviders:
                 body = bytearray()
                 for chunk in response.iter_bytes(65536):
                     body.extend(chunk)
-                    if len(body) > 32 * 1024 * 1024:
-                        raise FlagwaError("CONTEXT_RESPONSE_LIMIT", "Context response exceeds the 32 MiB cap", 413)
+                    if len(body) > max_response_bytes:
+                        raise FlagwaError("CONTEXT_RESPONSE_LIMIT", f"Context response exceeds the {max_response_bytes // (1024 * 1024)} MiB cap", 413)
                 try:
                     return json.loads(body)
                 except (ValueError, TypeError):
                     raise FlagwaError("CONTEXT_INVALID_RESPONSE", "Context provider did not return valid JSON", 502) from None
         raise FlagwaError("CONTEXT_REDIRECT_LIMIT", "Context redirect count exceeded the safety limit", 502)
 
-    def json(self, method, url, **kwargs):
+    def json(self, method, url, response_limit_bytes=32 * 1024 * 1024, **kwargs):
+        if not isinstance(response_limit_bytes, int) or not 1 <= response_limit_bytes <= 64 * 1024 * 1024:
+            raise FlagwaError("CONTEXT_RESPONSE_LIMIT_INVALID", "Context response cap must be between 1 and 64 MiB", 422)
         try:
-            return self._json(method, url, **kwargs)
+            return self._json(method, url, max_response_bytes=response_limit_bytes, **kwargs)
         except (TemporaryContextError, httpx.TransportError):
             raise FlagwaError("CONTEXT_PROVIDER_UNAVAILABLE", "Context provider unavailable after bounded retries", 503) from None
 
@@ -147,8 +149,8 @@ class ContextProviders:
                 for item in data["features"]]
 
     def boundaries(self, country, level="ADM2"):
-        if not re.fullmatch(r"[A-Z]{3}", country) or level not in {"ADM0", "ADM1", "ADM2"}:
-            raise FlagwaError("BOUNDARY_QUERY_INVALID", "Use an ISO alpha-3 country and ADM0/ADM1/ADM2", 422)
+        if not re.fullmatch(r"[A-Z]{3}", country) or level not in {"ADM0", "ADM1", "ADM2", "ADM3"}:
+            raise FlagwaError("BOUNDARY_QUERY_INVALID", "Use an ISO alpha-3 country and ADM0 through ADM3", 422)
         url = f"https://www.geoboundaries.org/api/current/gbOpen/{country}/{level}/"
         record = self.json("GET", url)
         return [{"id": record.get("boundaryID"), "provider": "boundaries", "source": "geoBoundaries gbOpen",

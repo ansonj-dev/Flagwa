@@ -1,0 +1,1017 @@
+.earthscore-page {
+  min-height: 100dvh;
+  background: #050811;
+  padding-top: 86px;
+}
+.earthscore-page .site-header {
+  position: absolute;
+}
+.earthscore-shell {
+  max-width: 1900px;
+  margin: 0 auto;
+  padding: 35px 3.5% 30px;
+}
+.earthscore-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+.earthscore-title .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 8px;
+}
+.earthscore-title h1 {
+  font-size: 42px;
+  font-weight: 500;
+  margin: 10px 0 9px;
+}
+.earthscore-title h1 > span {
+  color: #20c8d2;
+}
+.earthscore-title p {
+  color: #9aaac0;
+  font-size: 12px;
+}
+.earthscore-return {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #a3b9ca;
+  min-height: 44px;
+}
+.earthscore-return:hover {
+  color: #20c8d2;
+}
+.earthscore-sourcebar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 13px 0;
+  border-top: 1px solid #b0c5d21f;
+  border-bottom: 1px solid #b0c5d21f;
+  margin-bottom: 24px;
+}
+.earthscore-sourcebar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.earthscore-sourcebar > div:first-child {
+  flex: 1;
+}
+.earthscore-sourcebar > div:first-child > svg {
+  color: #20c8d2;
+  flex-shrink: 0;
+}
+.earthscore-sourcebar select {
+  background: transparent;
+  border-color: transparent;
+  padding: 8px 4px;
+  font-size: 11px;
+  min-height: 40px;
+}
+.earthscore-sourcebar select option {
+  background: #101e2a;
+}
+.earthscore-result-picker {
+  width: 330px;
+}
+.earthscore-workspace {
+  display: grid;
+  grid-template-columns: 225px minmax(0, 1fr) 250px;
+  align-items: start;
+  gap: 23px;
+}
+.earthscore-geography,
+.earthscore-science {
+  min-width: 0;
+}
+.earthscore-panel-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #9aaac0;
+  padding: 5px 0 16px;
+}
+.earthscore-panel-label svg {
+  color: #718cff;
+}
+.earthscore-locator {
+  height: 235px;
+  width: 100%;
+  position: relative !important;
+  overflow: hidden;
+  background: #101e2a;
+  border: 1px solid #b0c5d221;
+}
+.earthscore-locator canvas {
+  outline: 0;
+}
+.earthscore-locator .maplibregl-ctrl-attrib {
+  font-size: 7px !important;
+}
+.earthscore-map-note {
+  font-size: 8px !important;
+  color: #9aaac0;
+  margin: 8px 0 21px;
+  line-height: 1.6;
+}
+.earthscore-geography label {
+  font-size: 10px;
+  margin-top: 17px;
+  margin-bottom: 6px;
+}
+.earthscore-geography select {
+  font-size: 10px;
+  background: #0b1520;
+  min-height: 42px;
+}
+.earthscore-normalization > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.earthscore-normalization input {
+  width: 110px;
+  min-width: 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+.earthscore-normalization .mono {
+  font-size: 10px;
+  color: #9aaac0;
+}
+.earthscore-normalization small {
+  display: block;
+  font-size: 8px;
+  margin: 6px 0 12px;
+}
+.earthscore-geography details {
+  font-size: 10px;
+}
+.earthscore-geography details p {
+  font-size: 10px;
+  color: #9aaac0;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.earthscore-composition {
+  min-width: 0;
+  border-left: 1px solid #b0c5d217;
+  border-right: 1px solid #b0c5d217;
+}
+.earthscore-caption {
+  padding: 5px 15px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9aaac0;
+  font-size: 8px;
+  min-height: 35px;
+}
+.earthscore-signal {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
+  background: #20c8d2;
+  border-radius: 50%;
+}
+.earthscore-caption-end {
+  margin-left: auto;
+  font-size: 7px;
+  color: #78909f;
+  white-space: nowrap;
+}
+.earthscore-art {
+  height: min(58dvh, 700px);
+  min-height: 420px;
+  position: relative;
+  width: 100%;
+}
+.earthscore-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+.earthscore-hover {
+  position: absolute;
+  left: 20px;
+  bottom: 45px;
+  pointer-events: none;
+  background: #101e2af5;
+  border-left: 2px solid #20c8d2;
+  padding: 8px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  max-width: calc(100% - 40px);
+  overflow-wrap: anywhere;
+  color: #d9e2ed;
+}
+.earthscore-timeline {
+  border-top: 1px solid #b0c5d21f;
+  padding: 10px 12px 0;
+}
+.earthscore-transport {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.earthscore-transport input {
+  flex: 1;
+  min-width: 40px;
+}
+.earthscore-transport select {
+  width: 63px;
+  font-size: 10px;
+  min-height: 36px;
+  padding: 6px;
+}
+.earthscore-transport .icon-button {
+  width: 36px;
+  min-width: 36px;
+}
+.earthscore-stage-buttons {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 4px 15px;
+}
+.earthscore-stage-buttons button {
+  text-align: left;
+  min-height: 62px;
+  border-top: 1px solid #344350;
+  padding: 11px 0 0;
+  color: #8197aa;
+  min-width: 0;
+}
+.earthscore-stage-buttons button[aria-pressed="true"] {
+  color: #20c8d2;
+  border-color: #20c8d2;
+}
+.earthscore-stage-buttons span {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
+}
+.earthscore-stage-buttons time {
+  display: block;
+  font-size: 10px;
+  color: #c8d8e4;
+  margin-top: 5px;
+}
+.earthscore-stage-buttons small {
+  display: block;
+  font-size: 7px;
+  margin-top: 3px;
+  line-height: 1.6;
+}
+.earthscore-science > .eyebrow {
+  font-size: 8px;
+}
+.earthscore-science h2 {
+  font-size: 21px;
+  line-height: 1.3;
+  margin: 10px 0 14px;
+}
+.earthscore-exact-value {
+  border-left: 2px solid #20c8d2;
+  padding-left: 12px;
+  margin: 20px 0;
+}
+.earthscore-exact-value strong {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 21px;
+  font-weight: 400;
+  color: #d9e2ed;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.earthscore-exact-value > span {
+  color: #9aaac0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+}
+.earthscore-meaning {
+  font-size: 10px;
+  line-height: 1.85;
+  color: #b2c2d2;
+}
+.earthscore-science .data-list {
+  font-size: 9px;
+  margin-bottom: 9px;
+}
+.earthscore-science .data-list > div {
+  gap: 9px;
+}
+.earthscore-science .data-list dt {
+  max-width: 45%;
+  font-size: 9px;
+}
+.earthscore-science .data-list dd {
+  font-size: 9px;
+  line-height: 1.75;
+}
+.earthscore-science details {
+  font-size: 10px;
+}
+.earthscore-science details p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #9aaac0;
+  margin: 10px 0;
+}
+.earthscore-scene-id {
+  display: block;
+  font-size: 8px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  margin-bottom: 10px;
+}
+.earthscore-audio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  padding: 25px 0;
+  border-top: 1px solid #b0c5d21f;
+  border-bottom: 1px solid #b0c5d21f;
+  margin-top: 27px;
+}
+.earthscore-audio h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  margin: 8px 0;
+}
+.earthscore-audio h2 svg {
+  color: #20c8d2;
+}
+.earthscore-audio > .eyebrow,
+.earthscore-audio .eyebrow {
+  font-size: 8px;
+}
+.earthscore-audio p {
+  font-size: 9px;
+  color: #9aaac0;
+}
+.earthscore-audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.earthscore-audio-controls > input[type="range"] {
+  width: 110px;
+}
+.earthscore-audio-controls .secondary-button {
+  font-size: 11px;
+  min-width: 98px;
+}
+.earthscore-audio-selection {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  margin: 0;
+  min-height: 44px;
+}
+.earthscore-audio-selection input {
+  width: 14px;
+  height: 14px;
+  min-height: 14px;
+}
+.earthscore-audio-status {
+  font-size: 8px;
+  color: #9aaac0;
+  min-width: 105px;
+}
+.earthscore-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 45px;
+  padding: 25px 0;
+}
+.earthscore-legend .eyebrow {
+  font-size: 8px;
+}
+.earthscore-legend p {
+  color: #9aaac0;
+  font-size: 10px;
+  line-height: 1.9;
+  margin-top: 10px;
+}
+.earthscore-legend b {
+  font-weight: 500;
+  color: #c5d3df;
+}
+.earthscore-legend-stroke,
+.earthscore-legend-fragment {
+  display: inline-block;
+  width: 23px;
+  border-top: 2px solid #20c8d2;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.earthscore-legend-fragment {
+  border-color: #e9b653;
+  border-top-style: dashed;
+  margin-left: 8px;
+}
+.earthscore-method {
+  font-size: 10px;
+}
+.earthscore-method p {
+  font-size: 11px;
+  line-height: 1.9;
+  color: #9aaac0;
+  margin: 10px 0;
+}
+.earthscore-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  margin-top: 25px;
+  padding-top: 20px;
+}
+.earthscore-footer > p {
+  font-size: 10px;
+  color: #9aaac0;
+  line-height: 1.85;
+  max-width: 720px;
+}
+.earthscore-footer > div {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.earthscore-footer .secondary-button {
+  font-size: 10px;
+}
+.earthscore-footer .text-button {
+  font-size: 10px;
+}
+.earthscore-loading {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+.earthscore-loading p {
+  font-size: 12px;
+  color: #9aaac0;
+}
+.earthscore-page .empty-state {
+  min-height: 300px;
+  align-items: center;
+  justify-content: center;
+}
+.earthscore-page .empty-state p {
+  max-width: 500px;
+}
+.earthscore-dispatch {
+  margin: 35px 0 20px;
+  padding: 29px 0 27px;
+  border-top: 1px solid #b0c5d229;
+  border-bottom: 1px solid #b0c5d229;
+  background: linear-gradient(105deg, #10191b 0%, #0a1118 48%, #17160f 100%);
+}
+.earthscore-dispatch-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 23px;
+}
+.earthscore-dispatch-heading h2 {
+  font-size: 27px;
+  font-weight: 500;
+  margin: 9px 0 7px;
+}
+.earthscore-dispatch-heading p {
+  color: #9aaac0;
+  font-size: 10px;
+}
+.earthscore-dispatch-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 1px solid #b0c5d230;
+  color: #aab9c5;
+  padding: 9px 11px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
+}
+.earthscore-dispatch-status svg {
+  color: #e5b85d;
+}
+.earthscore-dispatch-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.72fr) minmax(0, 1.6fr);
+  gap: 30px;
+  align-items: start;
+}
+.earthscore-dispatch-track {
+  border-right: 1px solid #b0c5d225;
+  padding-right: 27px;
+}
+.earthscore-dispatch-track > .eyebrow {
+  display: block;
+  margin: 3px 0 19px;
+  font-size: 8px;
+}
+.earthscore-dispatch-track ol {
+  position: relative;
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.earthscore-dispatch-track ol::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 15px;
+  left: 4px;
+  border-left: 1px solid #60716c;
+}
+.earthscore-dispatch-track li {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  padding: 0 0 21px 19px;
+}
+.earthscore-dispatch-track li::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #b4c4bf;
+  background: #10191b;
+  border-radius: 50%;
+}
+.earthscore-dispatch-track li[data-derived="true"]::before {
+  border-color: #e5b85d;
+  background: #e5b85d;
+}
+.earthscore-dispatch-track time {
+  color: #e1e9e9;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+.earthscore-dispatch-track small {
+  color: #83989a;
+  font-size: 7px;
+}
+.earthscore-dispatch-track > p {
+  border-left: 2px solid #e5b85d;
+  color: #aab9c5;
+  font-size: 9px;
+  line-height: 1.7;
+  margin: 0;
+  padding-left: 10px;
+}
+.earthscore-dispatch-messages {
+  display: grid;
+  gap: 11px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.earthscore-dispatch-message {
+  display: grid;
+  grid-template-columns: 126px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+.earthscore-dispatch-stamp {
+  color: #809296;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 7px;
+  line-height: 1.7;
+  padding-top: 12px;
+}
+.earthscore-dispatch-bubble {
+  min-width: 0;
+  border: 1px solid #b0c5d223;
+  border-left: 2px solid #7caeaa;
+  background: #0c151be8;
+  padding: 13px 15px 14px;
+}
+.earthscore-dispatch-message[data-kind="hypothesis"]
+  .earthscore-dispatch-bubble {
+  margin-left: 8%;
+  border-left-color: #e5b85d;
+  background: #18170fe8;
+}
+.earthscore-dispatch-message[data-kind="limit"] .earthscore-dispatch-bubble {
+  border-left-color: #d47e65;
+}
+.earthscore-dispatch-speaker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #93aaa5;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 7px;
+}
+.earthscore-dispatch-speaker svg {
+  color: #78c5bf;
+}
+.earthscore-dispatch-message[data-kind="hypothesis"]
+  .earthscore-dispatch-speaker
+  svg {
+  color: #e5b85d;
+}
+.earthscore-dispatch-message[data-kind="limit"]
+  .earthscore-dispatch-speaker
+  svg {
+  color: #d47e65;
+}
+.earthscore-dispatch-bubble h3 {
+  color: #e0e8e6;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 7px 0 5px;
+}
+.earthscore-dispatch-bubble p {
+  color: #aab9bd;
+  font-size: 9px;
+  line-height: 1.8;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.earthscore-dispatch-value {
+  display: inline-block;
+  margin-top: 9px;
+  border: 1px solid #a3c1bb3d;
+  color: #bce2d9;
+  padding: 4px 7px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
+}
+@media (min-width: 1700px) {
+  .earthscore-workspace {
+    grid-template-columns: 270px minmax(0, 1fr) 285px;
+    gap: 35px;
+  }
+  .earthscore-locator {
+    height: 270px;
+  }
+  .earthscore-science h2 {
+    font-size: 25px;
+  }
+  .earthscore-exact-value strong {
+    font-size: 26px;
+  }
+  .earthscore-science .data-list dt,
+  .earthscore-science .data-list dd {
+    font-size: 10px;
+  }
+  .earthscore-art {
+    height: 650px;
+  }
+}
+@media (max-width: 1120px) {
+  .earthscore-workspace {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 22px;
+  }
+  .earthscore-science {
+    grid-column: 1/-1;
+    border-top: 1px solid #b0c5d21f;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 35px;
+    padding-top: 15px;
+  }
+  .earthscore-science .earthscore-panel-label {
+    grid-column: 1/-1;
+  }
+  .earthscore-science > .eyebrow,
+  .earthscore-science > h2,
+  .earthscore-exact-value,
+  .earthscore-meaning {
+    grid-column: 1;
+  }
+  .earthscore-science > .data-list {
+    grid-column: 2;
+    grid-row: 2/7;
+  }
+  .earthscore-science > details {
+    grid-column: 1/-1;
+  }
+  .earthscore-science > details + .data-list {
+    grid-row: auto;
+    grid-column: 1/-1;
+  }
+  .earthscore-exact-value {
+    margin: 15px 0;
+  }
+  .earthscore-art {
+    height: 500px;
+  }
+  .earthscore-audio {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .earthscore-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .earthscore-title h1 {
+    font-size: 36px;
+  }
+  .earthscore-result-picker {
+    width: 280px;
+  }
+  .earthscore-caption-end {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .earthscore-page {
+    padding-top: 74px;
+  }
+  .earthscore-shell {
+    padding: 26px 6%;
+  }
+  .earthscore-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 17px;
+  }
+  .earthscore-title h1 {
+    font-size: 32px;
+    margin: 11px 0;
+  }
+  .earthscore-title p {
+    font-size: 11px;
+  }
+  .earthscore-return {
+    font-size: 10px;
+    min-height: 34px;
+  }
+  .earthscore-title .eyebrow {
+    font-size: 7px;
+  }
+  .earthscore-sourcebar {
+    flex-wrap: wrap;
+    gap: 5px 12px;
+    padding: 10px 0;
+    margin-bottom: 18px;
+  }
+  .earthscore-sourcebar > div:first-child {
+    flex-basis: 100%;
+  }
+  .earthscore-sourcebar select {
+    font-size: 10px;
+  }
+  .earthscore-result-picker {
+    width: calc(100% - 135px);
+    flex: 1;
+  }
+  .earthscore-sourcebar .badge {
+    font-size: 8px;
+  }
+  .earthscore-workspace {
+    grid-template-columns: 1fr;
+    gap: 23px;
+  }
+  .earthscore-geography {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 15px;
+  }
+  .earthscore-geography .earthscore-panel-label {
+    grid-column: 1/-1;
+  }
+  .earthscore-locator {
+    height: 205px;
+    grid-column: 1/-1;
+  }
+  .earthscore-map-note {
+    grid-column: 1/-1;
+    margin-bottom: 3px;
+  }
+  .earthscore-geography > label {
+    grid-column: 1;
+    margin: 14px 0 4px;
+    font-size: 9px;
+  }
+  .earthscore-geography > select {
+    grid-column: 1;
+    min-height: 40px;
+    font-size: 9px;
+  }
+  .earthscore-normalization {
+    grid-column: 2;
+    grid-row: 4/8;
+    align-self: center;
+  }
+  .earthscore-normalization > div {
+    gap: 3px;
+  }
+  .earthscore-normalization input {
+    width: 80px;
+    font-size: 9px;
+  }
+  .earthscore-normalization .icon-button {
+    width: 31px;
+    min-width: 31px;
+  }
+  .earthscore-normalization label {
+    font-size: 9px;
+    line-height: 1.7;
+  }
+  .earthscore-normalization .mono {
+    font-size: 9px;
+  }
+  .earthscore-geography > details {
+    grid-column: 1/-1;
+    margin-top: 12px;
+  }
+  .earthscore-composition {
+    margin: 0;
+    padding: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 1px solid #b0c5d21f;
+    padding-top: 15px;
+  }
+  .earthscore-caption {
+    font-size: 7px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .earthscore-art {
+    height: 480px;
+    min-height: 480px;
+  }
+  .earthscore-stage-buttons {
+    gap: 8px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .earthscore-stage-buttons span {
+    font-size: 7px;
+  }
+  .earthscore-stage-buttons time {
+    font-size: 9px;
+  }
+  .earthscore-stage-buttons small {
+    font-size: 7px;
+  }
+  .earthscore-transport .icon-button {
+    width: 31px;
+    min-width: 31px;
+  }
+  .earthscore-timeline {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .earthscore-transport select {
+    width: 55px;
+    padding: 5px;
+  }
+  .earthscore-science {
+    gap: 0;
+    display: block;
+    padding-top: 0;
+  }
+  .earthscore-science .data-list {
+    font-size: 10px;
+  }
+  .earthscore-science .data-list dt,
+  .earthscore-science .data-list dd {
+    font-size: 10px;
+  }
+  .earthscore-science h2 {
+    font-size: 24px;
+  }
+  .earthscore-exact-value strong {
+    font-size: 27px;
+  }
+  .earthscore-audio-controls {
+    gap: 2px 5px;
+  }
+  .earthscore-audio-controls > input[type="range"] {
+    width: 88px;
+  }
+  .earthscore-audio-selection {
+    font-size: 9px;
+    margin-left: 0;
+  }
+  .earthscore-audio-status {
+    font-size: 8px;
+    margin-left: auto;
+  }
+  .earthscore-legend {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .earthscore-footer > div {
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+  .earthscore-footer > p {
+    font-size: 10px;
+  }
+  .earthscore-footer .secondary-button {
+    font-size: 10px;
+  }
+  .earthscore-hover {
+    font-size: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
+  }
+  .earthscore-loading {
+    min-height: 350px;
+  }
+  .earthscore-loading p {
+    font-size: 10px;
+    text-align: center;
+  }
+}
+@media (max-width: 700px) {
+  .earthscore-dispatch {
+    margin: 25px 0 15px;
+    padding: 22px 0;
+  }
+  .earthscore-dispatch-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .earthscore-dispatch-heading h2 {
+    font-size: 22px;
+  }
+  .earthscore-dispatch-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .earthscore-dispatch-track {
+    border-right: 0;
+    border-bottom: 1px solid #b0c5d225;
+    padding: 0 0 8px;
+  }
+  .earthscore-dispatch-track ol {
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  }
+  .earthscore-dispatch-track ol::before {
+    top: 4px;
+    right: 30px;
+    bottom: auto;
+    left: 4px;
+    border-top: 1px solid #60716c;
+    border-left: 0;
+  }
+  .earthscore-dispatch-track li {
+    gap: 5px;
+    padding: 18px 5px 13px 0;
+  }
+  .earthscore-dispatch-track li::before {
+    top: 0;
+  }
+  .earthscore-dispatch-track > p {
+    margin-bottom: 13px;
+  }
+  .earthscore-dispatch-message {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .earthscore-dispatch-stamp {
+    padding: 0 0 0 5px;
+  }
+  .earthscore-dispatch-message[data-kind="hypothesis"]
+    .earthscore-dispatch-bubble {
+    margin-left: 4%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .earthscore-page * {
+    scroll-behavior: auto !important;
+  }
+}
