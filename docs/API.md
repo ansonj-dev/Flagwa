@@ -1,5 +1,10 @@
 # API Contract
 
+For installation, private settings and UI workflows, see the [documentation index](README.md).
+This document describes the FastAPI contract. The optional trusted frontend's `/backend`, `/operator`
+and `/gateway` adapters are documented separately in the [Frontend Reference](../frontend/README.md);
+they are not additional scientific backend endpoints. The running `/openapi.json` is authoritative.
+
 Base URL: `http://localhost:8000`. Interactive OpenAPI: `/docs`; JSON schema: `/openapi.json`.
 Current contract: **45 paths**. Advanced request examples and mandatory scientific prerequisites are in [ADVANCED.md](ADVANCED.md).
 Application routes use `/api/v1`; health routes deliberately do not. Lists are ordered and bounded where records can grow.

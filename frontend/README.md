@@ -1,5 +1,11 @@
 # FLAGWA Frontend
 
+For project-wide documentation, start with the [main README](../README.md) and
+[documentation index](../docs/README.md). The [User Guide](../docs/USER_GUIDE.md) explains Explorer,
+Earthscore, Radar Lab and Groundwire; [Getting Started](../docs/GETTING_STARTED.md),
+[Configuration](../docs/CONFIGURATION.md) and [Deployment](../docs/DEPLOYMENT.md) cover the complete stack.
+This file retains frontend-specific architecture, mappings, adapters and verification detail.
+
 ## THE EARTHSCORE
 
 The signature experience is available at `/earthscore`, `/earthscore/:locationSlug` and

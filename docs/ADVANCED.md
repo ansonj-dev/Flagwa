@@ -1,5 +1,8 @@
 # Scientific Workflows And Operations
 
+See the [documentation index](README.md) for full-project setup and the
+[Deployment And Operations guide](DEPLOYMENT.md) for hosting, backups and troubleshooting.
+
 All six analysis routes execute asynchronous jobs. The five advanced themes are **experimental, operational=false**,
 and have software tests using explicitly synthetic fixtures, not verified demonstrations at all eight research locations.
 Nothing here claims independently validated floods, deforestation, crop yield, glacier speed in map coordinates or vertical subsidence.

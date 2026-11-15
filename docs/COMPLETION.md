@@ -3,12 +3,16 @@
 Completed and verified in this workspace on **14 November 2026**. The earlier [VERIFICATION.md](VERIFICATION.md) remains
 a historical record of the initial genuine-data core; this report supersedes its implementation-gap list.
 
+This is a dated backend implementation record, not the current full-application guide or a live inventory.
+Start with the [documentation index](README.md) for current setup, experiences and operations.
+
 ## A. Audit And Scope
 
 Preserved the original research scripts, source configuration and scientific outputs. Added code only within the backend,
 tests, operational configuration and documentation. The pre-existing private environment-file changes remain untouched.
 No credentials, signed URLs, multi-gigabyte source files or generated scientific outputs were added to source control.
-The changes in this follow-up have not been committed or pushed automatically.
+The original follow-up was not committed automatically at the time of this report; subsequent source
+publication is recorded in Git history. Do not use this historical note to infer current worktree state.
 
 ## B. Completed Architecture
 
@@ -56,7 +60,7 @@ The completed backend also replayed actual previously authorized NISAR measureme
 29 October and 10 November 2026, L-band GCOV, frequency A, HHHH, matching descending/left-looking geometry, track 77/frame 84.
 No additional satellite transfer or complete multi-gigabyte source download was performed for this replay.
 
-**Current genuine result:** `c05d014f-ab09-455f-a678-f936b1543c57`.
+**Genuine result recorded in this verification run:** `c05d014f-ab09-455f-a678-f936b1543c57`.
 
 | Actual Output | Value |
 | --- | --- |

@@ -1,12 +1,149 @@
-# FLAGWA — Global Surface Change Explorer
+# FLAGWA: Global Surface Change Explorer
 
-Reading Earth's Changing Surface Through Radar.
+**Reading Earth's changing surface through radar.**
 
-The modular FastAPI/PostGIS/Celery backend is documented in [docs/BACKEND.md](docs/BACKEND.md).
-The remaining implementation work is recorded in [docs/COMPLETION.md](docs/COMPLETION.md), with six executable scientific workflows,
-independent validation jobs, context adapters, recovery, and safe optional interpretation. Advanced workflows remain experimental, not validated disaster products.
-See [the API contract](docs/API.md), [repository audit](docs/AUDIT.md), and [verification report](docs/VERIFICATION.md)
-for implemented capabilities, actual test results, and scientific limitations. The original audit scripts remain available below.
+FLAGWA is a research application for discovering NASA–ISRO NISAR observations, processing reproducible
+surface-change measurements, inspecting their scientific evidence, and exploring them through maps,
+plain-language summaries and data art. It combines a React/TypeScript frontend with a FastAPI,
+PostGIS, Redis and Celery backend.
+
+> **Scientific boundary:** a completed job is not a validated environmental event. The demonstrated
+> GCOV flood workflow produces potential inundation candidates, not confirmed flooding or flood depth.
+> Forest, agriculture, wildfire, glacier and deformation workflows remain experimental and
+> non-operational. Availability, context coverage and validation must be checked for each actual result.
+
+## Documentation
+
+Start with the [documentation index](docs/README.md), then choose a guide:
+
+| Goal | Guide |
+| --- | --- |
+| Install and run the complete project | [Getting Started](docs/GETTING_STARTED.md) |
+| Understand services, data flow and source layout | [Architecture](docs/ARCHITECTURE.md) |
+| Use Explorer, Earthscore, Radar Lab and Groundwire | [User Guide](docs/USER_GUIDE.md) |
+| Configure credentials, storage and public/private settings | [Configuration](docs/CONFIGURATION.md) |
+| Deploy, monitor and recover the application | [Deployment And Operations](docs/DEPLOYMENT.md) |
+| Develop, test and contribute safely | [Development And Testing](docs/DEVELOPMENT.md) |
+| Work directly with backend services | [Backend Reference](docs/BACKEND.md) |
+| Call API endpoints and understand response envelopes | [API Reference](docs/API.md) |
+| Understand scientific methods and independent validation | [Scientific Workflows](docs/ADVANCED.md) |
+| Inspect frontend internals and Earthscore mappings | [Frontend Reference](frontend/README.md) |
+
+## Experiences
+
+- **Scientific Explorer:** study-area maps, real-date observations, synchronized before/after comparison,
+	raster/vector layers, statistics, context, source provenance and exports.
+- **THE EARTHSCORE:** deterministic artistic encoding of actual processed measurements, linked sample
+	footprints and exact values, optional user-initiated sonification, and source-labelled image/JSON export.
+- **Radar Lab:** qualitative concept illustrations alongside a separate real-observation mode. An
+	educational illustration is never presented as an acquired satellite measurement.
+- **Groundwire:** source-grounded summaries, dates, measured indicators and interpretation limits.
+	Suggested explanations remain hypotheses, not confirmed causes or emergency alerts.
+- **Scientific workbench:** live-schema request forms for catalogue search, compatibility checks,
+	acquisition, six processing themes, job tracking and independent validation. Restricted operations
+	require server-configured operator access.
+
+## Quick Start
+
+Requirements: Git, Docker with Compose, Node.js 24+, npm, and private environment configuration.
+Python 3.12 is the tested runtime when running the backend outside Docker.
+
+1. Clone the repository and enter it:
+
+	 ```bash
+	 git clone https://github.com/ansonj-dev/Flagwa.git
+	 cd Flagwa
+	 ```
+
+2. Create a private root `.env` using [config/backend.env.example](config/backend.env.example).
+	 Set `POSTGRES_PASSWORD`, a URL-encoded password in `DOCKER_DATABASE_URL` using host `postgres`,
+	 a local `DATABASE_URL` using host `127.0.0.1`, and a strong `ADMIN_API_KEY`.
+	 Do not overwrite an existing private file or commit credentials.
+
+3. Start the backend stack and frontend:
+
+	 ```bash
+	 docker compose up --build -d
+	 npm --prefix frontend ci
+	 npm --prefix frontend run dev
+	 ```
+
+4. Open the application and API documentation:
+
+	 | Service | Default local URL |
+	 | --- | --- |
+	 | Application | http://localhost:5173/ |
+	 | Backend API documentation | http://localhost:8000/docs |
+	 | Backend readiness | http://localhost:8000/health/ready |
+
+The migration service initializes the schema and location catalogue. **A fresh installation does not
+include scientific products, processed results, context datasets or credentials.** Discover and acquire
+real data before expecting comparison, Earthscore or exposure results. See the
+[complete setup guide](docs/GETTING_STARTED.md) for native Python, frontend server settings and next steps.
+
+## Scientific Capabilities
+
+| Theme | Input | Meaning of output |
+| --- | --- | --- |
+| Flood and water | Two compatible GCOV observations and reviewed context | Potential inundation candidates |
+| Forest | Comparable dual-polarization GCOV and forest mask | Experimental disturbance candidates, not confirmed deforestation |
+| Agriculture | At least three compatible dated GCOV observations | Experimental descriptive surface response, not yield or soil moisture |
+| Wildfire | Compatible GCOV, dated fire perimeter and independent optical support | Experimental fire-associated change, not burn severity |
+| Glacier | GOFF offsets, units, quality and glacier extent | Experimental radar-coordinate offset rate, not retreat or ice-mass loss |
+| Deformation | GUNW phase, frequency, coherence, reference and correction assessment | Experimental apparent relative LOS displacement, not vertical subsidence |
+
+Context sources are explicitly registered with provenance and reuse terms. Missing population or
+infrastructure coverage is **unavailable**, not zero exposure. Continuous measurement coverage is not
+an impact area. See [method requirements and validation gates](docs/ADVANCED.md).
+
+## Technology And Repository
+
+```text
+frontend/       React, TypeScript, Vite, MapLibre, GeoTIFF workers, Web Audio
+app/            FastAPI API, scientific services, storage, Celery tasks and operator CLIs
+config/         Safe configuration/provenance templates and draft study AOI
+docs/           Setup, architecture, usage, science, API and operations guides
+tests/          Backend unit, integration and live-provider tests
+scripts/        Original Kerala catalogue/download/HDF5 audit utilities
+data/audit/     Original scene-selection audit record
+storage/        Ignored runtime products, context and processed artifacts
+```
+
+Dependency definitions are committed in [requirements.txt](requirements.txt),
+[requirements-processing.txt](requirements-processing.txt), [frontend/package.json](frontend/package.json)
+and [frontend/package-lock.json](frontend/package-lock.json). Installed dependencies and private products
+are not committed.
+
+## Verification And Status
+
+The latest publication check on 15 November 2026 passed **42 frontend tests**, strict server typechecking,
+the production frontend build, and **106 backend tests** with **21 explicit service/live skips**.
+Earlier feature acceptance also exercised real COG ranges, canvas pixels, linked Earthscore geometry,
+audio controls, exports, responsive layouts and accessibility. These are recorded runs, not a promise
+that external providers or every hosted environment will always be available.
+
+Run the [documented verification commands](docs/DEVELOPMENT.md) in your own environment. Frontend CI
+checks units, server types, build and production dependency audit; genuine-data browser tests require
+the configured backend and processed records. Historical backend evidence is retained in
+[Completion](docs/COMPLETION.md), [Verification](docs/VERIFICATION.md) and [Audit](docs/AUDIT.md).
+
+## Security And Data Handling
+
+- Administrative, Earthdata, database, object-storage and optional AI credentials stay server-side.
+- Never put secrets in `VITE_` variables. The browser needs only the public API base URL.
+- Do not expose the backend's development loopback write exception through an unrestricted proxy.
+- Prepared before/after rasters require the optional read-only frontend artifact bridge; unavailable
+	observations are not replaced with optical imagery or demo measurements.
+- Deploy Node/API services behind HTTPS, restrict storage/database access, and retain independent
+	scientific validation before making environmental claims.
+
+See [Configuration](docs/CONFIGURATION.md) and [Deployment And Operations](docs/DEPLOYMENT.md).
+
+## Original Research Utilities
+
+The original audit guide follows for reproducibility. Its dates, checklist and product-availability
+notes describe that initial audit phase; they are **not the current full-project installation guide**.
+Use current provider metadata rather than treating the historical date windows as live availability.
 
 ## Original Kerala NISAR Data Audit Starter Kit
 

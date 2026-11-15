@@ -1,11 +1,17 @@
 # FLAGWA Backend
 
 FLAGWA connects genuine NISAR observations to reproducible surface-response candidates, geographical context,
-and explicitly limited exposure estimates. Kuttanad-Alappuzha is the primary pilot. The other seven locations are
-research entries with independently unverified boundaries/data availability, not operational demonstrations.
+and explicitly limited exposure estimates. Kuttanad-Alappuzha is the primary pilot. Other locations are research
+entries, not operational demonstrations; actual boundaries, acquisitions, context and completed results depend
+on the running database and require independent review.
 
-**Scientific status:** computation completed does not mean scientifically validated. All current analysis results
-remain `pending_validation`. GCOV difference is not flood depth, deforestation proof, crop yield or ground displacement.
+For the complete application, start with the [documentation index](README.md),
+[Getting Started](GETTING_STARTED.md), [Architecture](ARCHITECTURE.md) and
+[Configuration](CONFIGURATION.md). This file is the detailed backend reference, not the frontend user guide.
+
+**Scientific status:** computation completed does not mean scientifically validated. The documented genuine-data
+demonstration remains `pending_validation`; inspect each actual result's current review status rather than inferring
+it from this report. GCOV difference is not flood depth, deforestation proof, crop yield or ground displacement.
 NISAR launched in 2025 and did not observe Kerala's 2018 floods.
 See [COMPLETION.md](COMPLETION.md) for the current implementation report and [ADVANCED.md](ADVANCED.md) for all six workflows,
 independent validation, context acquisition, reviewed AOIs, recovery and safe optional interpretation.
