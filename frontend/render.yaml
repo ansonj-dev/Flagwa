@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: flagwa-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /operator/session
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: VITE_FLAGWA_API_BASE_URL
+        value: /backend
+      - key: FLAGWA_BACKEND_URL
+        sync: false
+      - key: FLAGWA_ENABLE_ARTIFACT_BRIDGE
+        value: "false"
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: OPERATOR_ACCESS_SECRET
+        sync: false
