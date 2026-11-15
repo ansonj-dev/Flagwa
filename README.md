@@ -1,330 +1,304 @@
-# FLAGWA: Global Surface Change Explorer
+# FLAGWA — Global Surface Change Explorer
 
-**Reading Earth's changing surface through radar.**
+<p align="center">
+  <strong>READING EARTH'S CHANGING SURFACE THROUGH RADAR</strong><br/>
+  <em>From satellite signal to grounded understanding of the places we call home.</em>
+</p>
 
-FLAGWA is a research application for discovering NASA–ISRO NISAR observations, processing reproducible
-surface-change measurements, inspecting their scientific evidence, and exploring them through maps,
-plain-language summaries and data art. It combines a React/TypeScript frontend with a FastAPI,
-PostGIS, Redis and Celery backend.
+<p align="center">
+  <a href="https://www.spaceappschallenge.org/2026/challenges/dancing-with-the-sars/"><img alt="NASA Space Apps Challenge 2026" src="https://img.shields.io/badge/NASA%20Space%20Apps-2026-0B6E99?style=flat-square&logo=nasa&logoColor=white"/></a>
+  <img alt="NISAR" src="https://img.shields.io/badge/Powered%20by-NISAR-176B5B?style=flat-square"/>
+  <img alt="FastAPI" src="https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white"/>
+  <img alt="React" src="https://img.shields.io/badge/Frontend-React%2019-149ECA?style=flat-square&logo=react&logoColor=white"/>
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white"/>
+  <img alt="Spatial" src="https://img.shields.io/badge/Spatial-PostGIS-4169E1?style=flat-square"/>
+  <img alt="License" src="https://img.shields.io/badge/License-see%20OPEN_SOURCE.md-lightgrey?style=flat-square"/>
+</p>
 
-> **Scientific boundary:** a completed job is not a validated environmental event. The demonstrated
-> GCOV flood workflow produces potential inundation candidates, not confirmed flooding or flood depth.
-> Forest, agriculture, wildfire, glacier and deformation workflows remain experimental and
-> non-operational. Availability, context coverage and validation must be checked for each actual result.
+> **The idea:** Earth is always changing. The challenge is learning to distinguish a meaningful surface signal from noise, seasonality, geometry and incomplete evidence—and then explaining what that signal might mean for real places and people.
 
-## Documentation
+FLAGWA is an interactive, evidence-led exploration platform for NASA–ISRO **NISAR** synthetic aperture radar (SAR) observations. It helps users discover acquisitions, check whether observations can be compared, inspect radar products, run traceable analyses, place results in geographic context, and communicate measurements through maps, scientific summaries and data art.
 
-Start with the [documentation index](docs/README.md), then choose a guide:
+It is built around a research question, not a catalogue demo:
 
-| Goal | Guide |
-| --- | --- |
-| Install and run the complete project | [Getting Started](docs/GETTING_STARTED.md) |
-| Understand services, data flow and source layout | [Architecture](docs/ARCHITECTURE.md) |
-| Use Explorer, Earthscore, Radar Lab and Groundwire | [User Guide](docs/USER_GUIDE.md) |
-| Configure credentials, storage and public/private settings | [Configuration](docs/CONFIGURATION.md) |
-| Deploy, monitor and recover the application | [Deployment And Operations](docs/DEPLOYMENT.md) |
-| Develop, test and contribute safely | [Development And Testing](docs/DEVELOPMENT.md) |
-| Work directly with backend services | [Backend Reference](docs/BACKEND.md) |
-| Call API endpoints and understand response envelopes | [API Reference](docs/API.md) |
-| Understand scientific methods and independent validation | [Scientific Workflows](docs/ADVANCED.md) |
-| Inspect frontend internals and Earthscore mappings | [Frontend Reference](frontend/README.md) |
+**What changed between observations, what can radar actually tell us, what else do we need to know, and how certain can we be?**
 
-## Experiences
+---
 
-- **Scientific Explorer:** study-area maps, real-date observations, synchronized before/after comparison,
-	raster/vector layers, statistics, context, source provenance and exports.
-- **THE EARTHSCORE:** deterministic artistic encoding of actual processed measurements, linked sample
-	footprints and exact values, optional user-initiated sonification, and source-labelled image/JSON export.
-- **Radar Lab:** qualitative concept illustrations alongside a separate real-observation mode. An
-	educational illustration is never presented as an acquired satellite measurement.
-- **Groundwire:** source-grounded summaries, dates, measured indicators and interpretation limits.
-	Suggested explanations remain hypotheses, not confirmed causes or emergency alerts.
-- **Scientific workbench:** live-schema request forms for catalogue search, compatibility checks,
-	acquisition, six processing themes, job tracking and independent validation. Restricted operations
-	require server-configured operator access.
+## A place-led investigation: Kuttanad, Alappuzha, Kerala
 
-## Quick Start
+<p align="center">
+  <img src="https://www.keralatourism.org/images/picture/large/Kuttanad_Alappuzha_2738.jpg" alt="Kuttanad's green paddy landscape, waterways and homes in Alappuzha, Kerala" width="100%"/>
+  <br/><em>Kuttanad — Kerala's rice bowl, where fields, canals, backwaters and settlements form one connected landscape. Image: Kerala Tourism.</em>
+</p>
 
-Requirements: Git, Docker with Compose, Node.js 24+, npm, and private environment configuration.
-Python 3.12 is the tested runtime when running the backend outside Docker.
+Our flagship study begins close to home: **Kuttanad in Alappuzha district, Kerala, India**. This is not simply a convenient point on a map. It is a distinctive low-lying wetland and agricultural landscape where water, paddy cultivation, canals, rivers, settlements and engineered water management are tightly connected.
 
-1. Clone the repository and enter it:
+Kuttanad's landscape makes radar interpretation especially interesting. Water can create strong radar contrasts, but the response is not as simple as “dark pixel = flood.” Smooth open water may return less energy toward the sensor; flooded vegetation and built structures can produce different scattering behaviour; wet soil, crop stage, wind, roughness, incidence geometry and permanent water can all affect backscatter. Paddy fields are dynamic landscapes, not static background.
 
-	 ```bash
-	 git clone https://github.com/ansonj-dev/Flagwa.git
-	 cd Flagwa
-	 ```
+This makes Kuttanad a strong place to ask a careful question: **how do radar observations of a lowland wetland-agricultural system vary between acquisition dates, and what independent evidence is needed to interpret those differences responsibly?**
 
-2. Create a private root `.env` using [config/backend.env.example](config/backend.env.example).
-	 Set `POSTGRES_PASSWORD`, a URL-encoded password in `DOCKER_DATABASE_URL` using host `postgres`,
-	 a local `DATABASE_URL` using host `127.0.0.1`, and a strong `ADMIN_API_KEY`.
-	 Do not overwrite an existing private file or commit credentials.
+The project uses an actual NISAR L-band GCOV observation pair over the Kuttanad area in its demonstrated workflow. The current result is a **radar-derived candidate requiring independent validation**. It is not a declaration of a flood event, a historical reconstruction of the 2018 Kerala floods, or a public warning. NISAR launched in 2025 and therefore did not observe the 2018 event; that event may be discussed as historical regional context only.
 
-3. Start the backend stack and frontend:
+**Why Kuttanad matters to FLAGWA**
 
-	 ```bash
-	 docker compose up --build -d
-	 npm --prefix frontend ci
-	 npm --prefix frontend run dev
-	 ```
+- **A real landscape:** the study is rooted in a specific place, not an arbitrary API response.
+- **A difficult radar problem:** wetlands, flooded vegetation, paddy cycles, permanent water and human water management complicate simple classifications.
+- **People and livelihoods:** agricultural land, water routes, homes and local infrastructure make contextual interpretation important.
+- **A reusable method:** the same evidence chain can support future studies of forests, agriculture, glaciers, wildfire and ground deformation—once each method is independently validated.
 
-4. Open the application and API documentation:
+---
 
-	 | Service | Default local URL |
-	 | --- | --- |
-	 | Application | http://localhost:5173/ |
-	 | Backend API documentation | http://localhost:8000/docs |
-	 | Backend readiness | http://localhost:8000/health/ready |
+## The research journey
 
-The migration service initializes the schema and location catalogue. **A fresh installation does not
-include scientific products, processed results, context datasets or credentials.** Discover and acquire
-real data before expecting comparison, Earthscore or exposure results. See the
-[complete setup guide](docs/GETTING_STARTED.md) for native Python, frontend server settings and next steps.
+FLAGWA turns a complex remote-sensing workflow into a sequence a researcher or curious reader can follow.
 
-## Scientific Capabilities
+1. **Choose a place.** Begin with Kuttanad or another configured study area. Understand its geography and the question being investigated.
+2. **Find the observations.** Search the available NISAR catalogue by area, date, product, frequency, maturity, orbit and acquisition metadata.
+3. **Check comparability.** Confirm that the scenes, measurement layers, dates, geometry, product maturity and processing baseline support a defensible comparison.
+4. **Inspect the signal.** Read product metadata and HDF5 structure. Understand which layers and polarizations are actually present.
+5. **Analyse a specific question.** Run the supported workflow using explicit parameters, masks, quality controls and traceable inputs.
+6. **Add context.** Relate the radar result to available land-cover, water, elevation, rainfall, population and infrastructure evidence—without inventing missing data.
+7. **Interpret, validate and communicate.** Review uncertainty and provenance, compare with independent evidence, and only then make an environmental claim.
 
-| Theme | Input | Meaning of output |
-| --- | --- | --- |
-| Flood and water | Two compatible GCOV observations and reviewed context | Potential inundation candidates |
-| Forest | Comparable dual-polarization GCOV and forest mask | Experimental disturbance candidates, not confirmed deforestation |
-| Agriculture | At least three compatible dated GCOV observations | Experimental descriptive surface response, not yield or soil moisture |
-| Wildfire | Compatible GCOV, dated fire perimeter and independent optical support | Experimental fire-associated change, not burn severity |
-| Glacier | GOFF offsets, units, quality and glacier extent | Experimental radar-coordinate offset rate, not retreat or ice-mass loss |
-| Deformation | GUNW phase, frequency, coherence, reference and correction assessment | Experimental apparent relative LOS displacement, not vertical subsidence |
+The sequence matters. A colourful map without compatible observations, physical reasoning or validation is not a scientific finding.
 
-Context sources are explicitly registered with provenance and reuse terms. Missing population or
-infrastructure coverage is **unavailable**, not zero exposure. Continuous measurement coverage is not
-an impact area. See [method requirements and validation gates](docs/ADVANCED.md).
+---
 
-## Technology And Repository
+## What you can explore
+
+| Experience | What it does | Why it matters |
+|---|---|---|
+| **Story** | Introduces the problem, radar evidence and FLAGWA's research approach. | Gives first-time visitors context before technical layers. |
+| **Explorer** | Navigates configured locations, catalogue observations, results, map layers, comparisons, statistics, context and evidence. | Connects a geographic question to real observations and outputs. |
+| **Radar Lab** | Separates qualitative radar education from inspection of real stored observations and product metadata. | Explains SAR without confusing an illustration with an actual acquisition. |
+| **Groundwire** | Produces source-grounded, plain-language interpretation with dates, measured indicators and caveats. | Makes evidence easier to understand without turning hypotheses into facts. |
+| **THE EARTHSCORE** | Encodes actual processed measurement samples into deterministic artwork, with linked footprints, exact values, optional user-initiated sound and attributed exports. | Offers an accessible way to communicate data while retaining scientific lineage. |
+| **Scientific workbench** | Supports catalogue search, compatibility checks, authorised acquisition, processing jobs, result review and validation records. | Exposes the reproducible workflow behind the visual interface. |
+
+Read the [User Guide](docs/USER_GUIDE.md) for user workflows and the [Frontend Reference](frontend/README.md) for implementation details.
+
+---
+
+## What FLAGWA currently supports
+
+### Demonstrated research workflow
+
+The implemented primary workflow uses compatible NISAR **L-band GCOV** observations to derive radar backscatter change and identify **potential inundation candidates** with contextual masks. The demonstrated Kuttanad processing run used an explicit AOI subset and actual acquired observation data. Its output remains pending independent validation.
+
+The product preserves the chain between source and interpretation: scene identifiers, acquisition dates, product type, frequency, polarization/dataset selection, processing parameters, masks, result files, statistics and uncertainty notes.
+
+### Other scientific themes
+
+The codebase contains distinct experimental processors and typed workflows for additional themes. Their presence in code does not mean they are ready for operational environmental interpretation.
+
+| Theme | Intended evidence | Current interpretation boundary |
+|---|---|---|
+| Flood / water dynamics | Comparable GCOV backscatter, water/permanent-water context and quality masks | Candidate inundation only; not confirmed flooding, flood depth or warning |
+| Forest disturbance | Compatible polarimetric observations and a suitable forest mask | Experimental disturbance candidate; not confirmed deforestation |
+| Agriculture | Multiple compatible dated observations and relevant crop/context information | Experimental surface-response description; not yield or a mission soil-moisture product |
+| Wildfire | Radar observations, dated fire perimeter and independent optical support | Experimental fire-associated change; not burn severity or proof of cause |
+| Glacier movement | GOFF offset layers, compatible units, quality information and glacier extent | Experimental radar-coordinate offset rate; not glacier retreat or ice-mass loss |
+| Ground deformation | GUNW phase, coherence, frequency, reference and correction assessment | Experimental apparent relative line-of-sight displacement; not vertical subsidence or a full 3-D motion vector |
+
+Capability status is exposed by the backend. Treat the running capability response and each result's `operational`, `result_status`, `synthetic`, `uncertainty_notes` and provenance fields as authoritative. See [Scientific Workflows](docs/ADVANCED.md).
+
+---
+
+## Scientific integrity is a product feature
+
+FLAGWA exposes uncertainty instead of hiding it.
+
+- **A job can succeed while a scientific hypothesis remains unvalidated.** Processing status and validation status are separate.
+- **A change candidate is not a confirmed event.** GCOV backscatter differences can indicate a change in radar response, not uniquely explain its physical cause.
+- **A measurement footprint is not an impact footprint.** Continuous measurement coverage must not be described as damaged or affected area.
+- **Missing context is not zero exposure.** An unavailable population, road or settlement layer is reported as unavailable, not as no people or infrastructure.
+- **A product maturity label is not independent validation.** NASA/ASF data maturity describes the satellite product; FLAGWA validation concerns the interpretation/result.
+- **Illustrative radar education is not observed satellite data.** Radar Lab labels qualitative illustrations clearly.
+- **No AI narrative becomes evidence.** Groundwire explanations are constrained by stored source metadata, measurements and explicit limits.
+
+A GCOV change map does not prove flood depth. Flooded vegetation, wet paddy, soil moisture, wind, roughness, viewing geometry and processing differences can change backscatter. Responsible interpretation combines SAR with independent optical imagery, hydrological and rainfall information, water masks, terrain, local reporting and field evidence where available.
+
+---
+
+## Architecture at a glance
+
+```mermaid
+flowchart TD
+  U[Researcher / explorer] --> FE[React + TypeScript application]
+  FE --> GW[Trusted Node / Vite gateway]
+  GW --> API[FastAPI REST API]
+  API --> DB[(PostgreSQL + PostGIS)]
+  API --> REDIS[(Redis)]
+  REDIS --> W[Celery worker]
+  SCH[Celery Beat scheduler] --> REDIS
+  W --> ASF[ASF / NASA Earthdata]
+  W --> BH[Bhoonidhi adapter - separately authorised]
+  W --> CTX[Registered context providers]
+  W --> PROC[Raster and SAR processing]
+  PROC --> STORE[(Local or S3-compatible artifact storage)]
+  STORE --> API
+  API --> FE
+  FE --> MAP[MapLibre / GeoTIFF workers / Earthscore]
+```
+
+**Frontend:** React 19, TypeScript, Vite, React Router, TanStack Query, Zustand, MapLibre GL, GeoTIFF.js, proj4, Recharts, Web Audio and an Express gateway.
+
+**Backend:** FastAPI, Pydantic, SQLAlchemy, PostgreSQL/PostGIS, Alembic, Redis, Celery, Rasterio, HDF5 inspection and local/S3-compatible artifact storage.
+
+**Key separation:** the browser consumes public API responses. Admin, Earthdata, database and object-storage credentials stay in trusted server environments. The optional frontend artifact bridge is read-only and resolves only approved result roles.
+
+Read [Architecture](docs/ARCHITECTURE.md), [Backend Reference](docs/BACKEND.md), [API Reference](docs/API.md), and [Configuration & Security](docs/CONFIGURATION.md).
+
+---
+
+## Quick start
+
+**Requirements:** Git, Docker with Compose, Node.js 24+, npm and private environment configuration. Python 3.12 is the tested native backend runtime.
+
+```bash
+git clone https://github.com/ansonj-dev/Flagwa.git
+cd Flagwa
+```
+
+Create a private root `.env` using [config/backend.env.example](config/backend.env.example). Set a local database password, matching URL-encoded database URLs and a strong `ADMIN_API_KEY`. Never commit this file or paste secrets into documentation.
+
+```bash
+docker compose up --build -d
+npm --prefix frontend ci
+npm --prefix frontend run dev
+```
+
+Open:
+
+| Service | Local address |
+|---|---|
+| FLAGWA frontend | http://localhost:5173/ |
+| FastAPI interactive docs | http://localhost:8000/docs |
+| OpenAPI schema | http://localhost:8000/openapi.json |
+| Backend liveness | http://localhost:8000/health/live |
+| Backend readiness | http://localhost:8000/health/ready |
+
+The migration service applies the database schema and seeds location metadata. A fresh installation does **not** include acquired NISAR scenes, processed results, contextual rasters, credentials or a populated real-data demonstration. Follow [Getting Started](docs/GETTING_STARTED.md) and [the User Guide](docs/USER_GUIDE.md) to progress from setup to an evidence-backed result.
+
+---
+
+## Repository map
 
 ```text
-frontend/       React, TypeScript, Vite, MapLibre, GeoTIFF workers, Web Audio
-app/            FastAPI API, scientific services, storage, Celery tasks and operator CLIs
-config/         Safe configuration/provenance templates and draft study AOI
-docs/           Setup, architecture, usage, science, API and operations guides
-tests/          Backend unit, integration and live-provider tests
-scripts/        Original Kerala catalogue/download/HDF5 audit utilities
-data/audit/     Original scene-selection audit record
-storage/        Ignored runtime products, context and processed artifacts
+.
+├── app/
+│   ├── api/                 # FastAPI health and versioned REST routes
+│   ├── cli/                 # Audits, acquisition, inspection, context and analysis tools
+│   ├── core/                # Settings, security, errors and logging
+│   ├── database/            # SQLAlchemy session and Alembic migrations
+│   ├── models/              # Persistent entities and spatial records
+│   ├── schemas/             # Typed API and scientific request/response contracts
+│   ├── services/
+│   │   ├── nisar/           # ASF, Earthdata, Bhoonidhi, compatibility and acquisition
+│   │   ├── processing/      # Theme-specific raster/SAR analysis and exports
+│   │   ├── context/         # Dataset registry, ingestion, masks and exposure
+│   │   └── reporting/       # Scientific summary and interpretation
+│   └── workers/             # Celery worker, scheduling and job heartbeat
+├── config/                  # Safe env template, AOI and context/audit configuration
+├── docs/                    # Product, user, science, API, deployment and development guides
+├── frontend/
+│   ├── server/              # Trusted Express/Vite gateway and access controls
+│   ├── src/
+│   │   ├── pages/           # Story, Explorer, Earthscore, Groundwire, Radar Lab, About
+│   │   ├── features/        # Dedicated scientific/creative feature modules
+│   │   ├── components/      # UI, maps, forms and scientific panels
+│   │   ├── services/        # Typed API client and data queries
+│   │   └── store/           # UI selection/view state
+│   └── e2e/                 # Browser acceptance scenarios
+├── scripts/                 # Original Kuttanad ASF search, download and HDF5 audit scripts
+├── tests/                   # Backend unit, integration and opt-in live-provider tests
+├── docker-compose.yml       # Local PostGIS, Redis, API, worker, scheduler and migration stack
+└── render.yaml              # Render multi-service blueprint
 ```
 
-Dependency definitions are committed in [requirements.txt](requirements.txt),
-[requirements-processing.txt](requirements-processing.txt), [frontend/package.json](frontend/package.json)
-and [frontend/package-lock.json](frontend/package-lock.json). Installed dependencies and private products
-are not committed.
+---
 
-## Verification And Status
+## Verification and reproducibility
 
-The latest publication check on 15 November 2026 passed **42 frontend tests**, strict server typechecking,
-the production frontend build, and **106 backend tests** with **21 explicit service/live skips**.
-Earlier feature acceptance also exercised real COG ranges, canvas pixels, linked Earthscore geometry,
-audio controls, exports, responsive layouts and accessibility. These are recorded runs, not a promise
-that external providers or every hosted environment will always be available.
+The repository includes frontend unit tests, browser acceptance tests, backend unit tests, integration tests guarded by environment flags and opt-in live-provider tests. Historical verification records are preserved in [Completion](docs/COMPLETION.md), [Verification](docs/VERIFICATION.md), and [Audit](docs/AUDIT.md).
 
-Run the [documented verification commands](docs/DEVELOPMENT.md) in your own environment. Frontend CI
-checks units, server types, build and production dependency audit; genuine-data browser tests require
-the configured backend and processed records. Historical backend evidence is retained in
-[Completion](docs/COMPLETION.md), [Verification](docs/VERIFICATION.md) and [Audit](docs/AUDIT.md).
+Run the current commands in [Development & Testing](docs/DEVELOPMENT.md) and record the environment, test selection and result when publishing new verification evidence. Historical test counts are records of particular runs, not a guarantee about another machine or later commit.
 
-## Security And Data Handling
+---
 
-- Administrative, Earthdata, database, object-storage and optional AI credentials stay server-side.
-- Never put secrets in `VITE_` variables. The browser needs only the public API base URL.
-- Do not expose the backend's development loopback write exception through an unrestricted proxy.
-- Prepared before/after rasters require the optional read-only frontend artifact bridge; unavailable
-	observations are not replaced with optical imagery or demo measurements.
-- Deploy Node/API services behind HTTPS, restrict storage/database access, and retain independent
-	scientific validation before making environmental claims.
+## Deployment
 
-See [Configuration](docs/CONFIGURATION.md) and [Deployment And Operations](docs/DEPLOYMENT.md).
+Docker Compose is the recommended local backend environment. The repository also contains a Render blueprint for the API, Redis, worker and scheduler, plus a separately configured frontend service. Render deployment requires external PostgreSQL/PostGIS and durable shared artifact storage (or a compatible S3 service), environment secrets, HTTPS and CORS/origin configuration. A committed blueprint is not proof of a live deployment.
 
-## Original Research Utilities
+See [Deployment & Operations](docs/DEPLOYMENT.md) and [Configuration](docs/CONFIGURATION.md).
 
-The original audit guide follows for reproducibility. Its dates, checklist and product-availability
-notes describe that initial audit phase; they are **not the current full-project installation guide**.
-Use current provider metadata rather than treating the historical date windows as live availability.
+---
 
-## Original Kerala NISAR Data Audit Starter Kit
+## Roadmap
 
-**Purpose:** run a reproducible catalog search for NISAR L-band GCOV products intersecting the proposed Kuttanad–Alappuzha study window, preserve the returned metadata, and download only explicitly selected granules.
+The roadmap distinguishes proposed work from current capability.
 
-> **Original starter-kit status:** The original kit below shipped without a live catalogue result or pre-filled scenes. The backend has since completed a genuine-data AOI workflow; see [the verification report](docs/VERIFICATION.md) for evidence and limitations. A zero-result search remains a valid outcome, not evidence that data exist.
+- Independently validate the Kuttanad candidate with suitable optical, hydrological, rainfall, water-level, local reporting and/or field evidence.
+- Replace the draft rectangular AOI with a reviewed study boundary and document its source/version.
+- Improve seasonal interpretation for paddy growth, harvest cycles, wet soil, permanent water and flooded vegetation.
+- Build robust, independently validated workflows for forest, agricultural, wildfire, glacier and deformation applications.
+- Expand source-attributed community context coverage; keep unavailable layers explicit.
+- Improve map tiling, large-raster performance, shared artifact delivery, monitoring, backup and restore.
+- Add richer, reviewed L-band/S-band comparison only where genuinely comparable observations exist and access is authorised.
+- Establish a formal software licence and contributor governance before broad public collaboration.
 
-## 1. What the kit does
+See [Roadmap & Research Agenda](docs/ROADMAP.md) for dependencies and acceptance criteria.
 
-1. Searches the ASF catalog for NISAR `GCOV` products over the draft Kuttanad bounding box.
-2. Runs separate searches for `VALIDATED` and `PROVISIONAL` data maturity.
-3. Saves the original GeoJSON results and a CSV scene inventory.
-4. Lets you download only a granule ID you choose after reviewing the inventory.
-5. Inspects the internal HDF5 dataset tree of a downloaded product without assuming a dataset path.
+---
 
-## 2. Current data window to audit
+## NASA Space Apps Challenge alignment
 
-Checked against the NISAR/ASF availability guide on **14 November 2026**:
+FLAGWA responds to [Dancing with the SARs](https://www.spaceappschallenge.org/2026/challenges/dancing-with-the-sars/) by choosing a meaningful study area, working with freely available NISAR SAR observations, incorporating geographic/context datasets where available, presenting an interactive digital medium, and investigating physical explanations for observed or absent radar responses. It also describes potential future uses for repeated SAR observations in wetland and agricultural monitoring, ecosystem disturbance, cryosphere change and surface deformation.
 
-- **VALIDATED L-band Level 0–2:** acquisitions from 21 October 2026 onward.
-- **PROVISIONAL L-band:** acquisitions from 17 June 2026 through partway into 23 October 2026.
-- **VALIDATED SME2:** not yet available as of that check.
+The essential contribution is not merely calling a catalogue endpoint. It is making the reasoning chain inspectable—from acquisition and product layer through processing, context, uncertainty and interpretation.
 
-The script uses conservative default date windows:
+- **Study-area choice:** Kuttanad, Alappuzha, Kerala, is the flagship case. Other configured locations are exploratory; do not assume they have compatible acquisitions.
+- **NISAR data use:** product discovery, maturity/metadata inspection, compatibility checks, authorised acquisition and product-aware interpretation.
+- **Supplemental context:** water, land-cover, terrain and other registered sources are shown with availability and provenance.
+- **Interactive medium:** map-based Explorer, Radar Lab, Groundwire and Earthscore.
+- **Physical interpretation:** hypotheses are tied to the radar observable and labelled as hypotheses until supported independently.
+- **Future applications:** repeat observations may support wetland, agriculture, forest, cryosphere and solid-Earth monitoring, subject to product suitability and validation.
 
-- VALIDATED: `2026-10-21` through `2026-11-14`
-- PROVISIONAL: `2026-06-17` through `2026-10-22`
+---
 
-Change these dates when the live ASF availability page is updated. Keep maturity classes separate in the analysis. Do not combine BETA, PROVISIONAL and VALIDATED products without a documented processing-baseline and product-consistency assessment.
+## Data, attribution and licensing
 
-## 3. Study area
+NISAR data access and product descriptions are maintained by NASA/ASF and ISRO/NRSC. Supplemental datasets retain source metadata, versions, access dates and reuse terms in the context registry where imported. A dataset's availability does not automatically grant unrestricted redistribution.
 
-The included GeoJSON is a **draft rectangular search window**, not an authoritative floodplain boundary:
+The repository did not contain a formal top-level software licence declaration at the time of this documentation update. **Until a licence is added, do not assume that source code may be reused, modified or redistributed under an open-source licence.** Data and imagery carry separate terms. See [Data Sources & Attribution](docs/DATA_SOURCES.md) and [Open-source status](docs/OPEN_SOURCE.md).
 
-- West: 76.25°E
-- East: 76.55°E
-- South: 9.20°N
-- North: 9.50°N
+---
 
-Refine this to a study-area polygon before final area calculations. ASF expects WKT coordinates in longitude, latitude order.
+## Documentation map
 
-## 4. Install on Windows (VS Code / PowerShell)
+| Need | Read |
+|---|---|
+| Documentation index | [docs/README.md](docs/README.md) |
+| First view / product story | This README |
+| Run locally and create first result | [Getting Started](docs/GETTING_STARTED.md) |
+| Understand service boundaries and data flow | [Architecture](docs/ARCHITECTURE.md) |
+| Use every user-facing experience | [User Guide](docs/USER_GUIDE.md) |
+| Kuttanad research, evidence and validation | [Kuttanad Study](docs/KUTTANAD_STUDY.md) |
+| SAR, products, methods and validation | [Scientific Workflows](docs/ADVANCED.md) |
+| API operations and contracts | [API Reference](docs/API.md) |
+| Server setup and operator commands | [Backend Reference](docs/BACKEND.md) |
+| Secrets, providers, storage and gateway | [Configuration & Security](docs/CONFIGURATION.md) |
+| Deploy and operate | [Deployment & Operations](docs/DEPLOYMENT.md) |
+| Test and contribute | [Development & Testing](docs/DEVELOPMENT.md) |
+| Feature internals | [Frontend Reference](frontend/README.md) |
+| Research sequence and next milestones | [Roadmap](docs/ROADMAP.md) |
+| Dataset provenance and citation | [Data Sources](docs/DATA_SOURCES.md) |
+| Software/data licensing status | [Open-source status](docs/OPEN_SOURCE.md) |
+| Common operations issues | [Troubleshooting](docs/TROUBLESHOOTING.md) |
+| Historical implementation evidence | [Completion](docs/COMPLETION.md), [Verification](docs/VERIFICATION.md), [Audit](docs/AUDIT.md) |
 
-Open this folder in VS Code, then run:
-
-```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If PowerShell blocks activation, use:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-Python 3.11 is a practical baseline for this starter kit. Use a compatible GDAL/QGIS environment separately for raster processing; geospatial binary packages can be platform-sensitive.
-
-## 5. Run the catalog audit (no Earthdata token required for basic discovery)
-
-```powershell
-python scripts/search_kerala_nisar.py
-```
-
-To change the window:
-
-```powershell
-python scripts/search_kerala_nisar.py --validated-start 2026-10-21 --validated-end 2026-11-14 --provisional-start 2026-06-17 --provisional-end 2026-10-22
-```
-
-To save results elsewhere:
-
-```powershell
-python scripts/search_kerala_nisar.py --out-dir data/audit/run_001
-```
-
-Outputs:
-
-- `kerala_nisar_validated.geojson`
-- `kerala_nisar_provisional.geojson`
-- `kerala_nisar_scene_inventory.csv`
-- `audit_summary.json`
-
-The inventory preserves the full product properties as JSON so that metadata fields are not lost if ASF changes its property naming.
-
-## 6. How to choose a valid pair
-
-Do not choose the first two search results automatically. Review:
-
-- Full AOI coverage (or sufficient overlap for the chosen sub-area).
-- Acquisition timestamps and temporal relevance.
-- Same product type and frequency (start with L-band GCOV).
-- Compatible main-band polarization and actual available layers.
-- Same orbit direction and comparable viewing geometry where possible.
-- Same processing maturity and preferably the same product baseline / CRID.
-- Quality masks and known product issues.
-- Whether both dates represent useful hydrological states (e.g. reference/drier versus wetter/event-relevant conditions).
-
-Record selected IDs in `data/audit/scene_pair_decision.csv`. If no comparable pair exists, do not claim an NISAR before/after flood result for this AOI.
-
-## 7. Download a selected granule
-
-Create a NASA Earthdata Login account and an Earthdata user token. Keep the token private.
-
-### PowerShell session-only token setup
-
-```powershell
-$env:EARTHDATA_TOKEN = "PASTE_YOUR_EARTHDATA_USER_TOKEN_HERE"
-```
-
-This only sets the variable for the current terminal session. Do not paste the token into source code, `.env` committed to Git, screenshots, chat, or public logs.
-
-Download one product by exact granule ID from the CSV:
-
-```powershell
-python scripts/download_kerala_granule.py --granule-id "PASTE_EXACT_GRANULE_ID" --out-dir data/raw/kerala_gcov
-```
-
-The downloader uses `ASFSession.auth_with_token()` and the ASF package download method. It does not download all search results.
-
-## 8. Inspect the HDF5 before extracting a raster
-
-```powershell
-pip install h5py
-python scripts/inspect_nisar_hdf5.py data/raw/kerala_gcov/PRODUCT.h5 --contains GCOV
-```
-
-Read the output and the product guide before selecting a dataset. Do not assume that `HHHH` or any other polarization exists in every acquisition. Do not copy a dataset path from an unrelated scene without checking.
-
-## 9. Next processing stage
-
-After a compatible pair is confirmed:
-
-1. Inspect both HDF5 products and identify the same physical measurement and frequency.
-2. Extract the selected scalar GCOV layer and all required quality/valid-data masks.
-3. Verify units and determine whether the values are linear power or already in dB.
-4. Align the rasters to a common grid, preserving CRS, transform, pixel spacing and nodata.
-5. Calculate a backscatter difference only after comparability checks.
-6. Derive a conservative **potential-inundation candidate** layer using thresholds calibrated against reference evidence.
-7. Exclude permanent water and inspect flooded vegetation, wetlands, paddy fields, terrain effects and radar geometry.
-8. Validate with independent imagery, flood reports, rainfall, water masks and local context.
-9. Publish only outputs whose lineage, units, dates, caveats and method are recorded.
-
-Backscatter difference is not flood depth and is not, on its own, proof of flooding.
-
-## 10. Credential map
-
-| Service | Needed now? | Credential |
-|---|---|---|
-| ASF catalog discovery | No | Public catalog search |
-| NISAR L-band download/stream | Yes for private download access | NASA Earthdata Login token |
-| ISRO Bhoonidhi S-band | Optional for L-band MVP | Separate Bhoonidhi account; API access is a separate authorization/token flow |
-| MapLibre | No | Map renderer only; you still need a basemap tile provider |
-| AI explanation provider | No | Optional provider-specific key, only if adding AI later |
-| PostGIS | No for this audit script | Database credentials only when you deploy a database |
-
-There is no single API key for all FLAGWA services.
-
-## 11. Official references
-
-- NISAR ASF search guide: https://nisar-docs.asf.alaska.edu/asf-search/
-- NISAR data availability: https://nisar-docs.asf.alaska.edu/availability-overview/
-- ASF `asf_search` searching: https://docs.asf.alaska.edu/asf_search/searching/
-- ASF `asf_search` basics: https://docs.asf.alaska.edu/asf_search/basics/
-- ASF session authentication: https://docs.asf.alaska.edu/asf_search/ASFSession/
-- Earthdata Login: https://urs.earthdata.nasa.gov/
-- ISRO Bhoonidhi NISAR: https://bhoonidhi.nrsc.gov.in/NISAR/
-- Bhoonidhi API specification: https://bhoonidhi.nrsc.gov.in/bhoonidhi-api/
-
-## 12. Definition of done for this phase
-
-- [ ] Search completed separately for VALIDATED and PROVISIONAL GCOV.
-- [ ] Search date windows and AOI saved.
-- [ ] Original GeoJSON and inventory CSV saved.
-- [ ] At least two genuinely comparable observations identified, or the audit records that no pair was found.
-- [ ] Selected pair has same maturity and compatible acquisition geometry/product properties.
-- [ ] Exact product IDs and acquisition times added to `scene_pair_decision.csv`.
-- [ ] Only then download the selected products.
-- [ ] HDF5 dataset tree inspected and relevant variables identified.
-
-**No data availability result is assumed by this starter kit. Run it and use the returned catalog records as the evidence.**
+<p align="center">
+  <strong>FLAGWA</strong><br/>
+  <em>Understand the signal. Respect the uncertainty. Tell the story of the place.</em>
+</p>
