@@ -1,59 +1,82 @@
 # FLAGWA Documentation
 
-This documentation covers the complete research application: scientific processing, web experiences,
-data provenance, configuration, deployment and development. The root [README](../README.md) is the
-short project overview. Commands are run from the repository root unless stated otherwise.
+> **A field guide to the product, the science, and the platform.**
 
-## Start Here
+FLAGWA is a place-led NISAR research application. This documentation is designed for three audiences: a first-time user trying to understand the experience, a scientific reviewer assessing the evidence, and a developer who needs to operate or extend the system.
 
-| Audience or task | Recommended path |
-| --- | --- |
-| First-time developer | [Getting Started](GETTING_STARTED.md), then [Development](DEVELOPMENT.md) |
-| Researcher or reviewer | [User Guide](USER_GUIDE.md), [Scientific Workflows](ADVANCED.md), [API](API.md) |
-| Frontend contributor | [Architecture](ARCHITECTURE.md), [Frontend Reference](../frontend/README.md) |
-| Backend contributor | [Architecture](ARCHITECTURE.md), [Backend Reference](BACKEND.md), [API](API.md) |
-| Deployment operator | [Configuration](CONFIGURATION.md), [Deployment And Operations](DEPLOYMENT.md) |
+Commands are written from the repository root unless a guide says otherwise. Product claims describe the committed implementation; current availability and result status must be checked against the running system.
 
-## Guide Map
+## Start with the story
 
-- [Getting Started](GETTING_STARTED.md): prerequisites, private settings, containers, native Python,
-  frontend startup, health checks and obtaining the first real result.
-- [Architecture](ARCHITECTURE.md): service responsibilities, trust boundaries, jobs, storage,
-  artifact publication and frontend state/rendering.
-- [User Guide](USER_GUIDE.md): routes, maps, evidence, workbench, Radar Lab, Groundwire and Earthscore.
-- [Configuration](CONFIGURATION.md): public versus private variables, database URLs, credentials,
-  provider settings, storage and optional artifact bridge.
-- [Deployment And Operations](DEPLOYMENT.md): Docker/Render, HTTPS, persistent artifacts, backups,
-  job recovery, temporary tunnels and troubleshooting.
-- [Development And Testing](DEVELOPMENT.md): dependencies, conventions, test tiers, safe fixtures,
-  CI and contribution checks.
-- [Backend Reference](BACKEND.md): detailed backend setup, source adapters, processing and operational commands.
-- [API Reference](API.md): existing routes, envelopes, errors, acquisition and result contracts.
-- [Scientific Workflows](ADVANCED.md): theme-specific requirements, interpretation, validation and recovery.
-- [Frontend Reference](../frontend/README.md): feature internals, deterministic Earthscore mappings,
-  gateway adapters, frontend hosting and browser acceptance details.
+1. Read the root [README](../README.md) for the product purpose and Kuttanad case study.
+2. Read the [User Guide](USER_GUIDE.md) to understand experiences and the end-to-end research workflow.
+3. Read [Scientific Workflows](ADVANCED.md) before interpreting a map or measurement.
+4. Follow [Getting Started](GETTING_STARTED.md) to run the stack.
+5. Use [Architecture](ARCHITECTURE.md), [API](API.md) and [Backend Reference](BACKEND.md) for implementation details.
 
-## Evidence And Maturity
+## Documentation by audience
 
-The following are implementation records, not continuously refreshed live system inventories:
+| Audience | Recommended reading order |
+|---|---|
+| NASA Space Apps reviewer | [Product story](../README.md) → [Kuttanad research](KUTTANAD_STUDY.md) → [Scientific workflows](ADVANCED.md) → [Evidence and verification](COMPLETION.md) |
+| First-time user | [User Guide](USER_GUIDE.md) → [Scientific workflows](ADVANCED.md) |
+| New developer | [Getting Started](GETTING_STARTED.md) → [Architecture](ARCHITECTURE.md) → [Development](DEVELOPMENT.md) |
+| Frontend developer | [Architecture](ARCHITECTURE.md) → [Frontend Reference](../frontend/README.md) |
+| Backend developer | [Architecture](ARCHITECTURE.md) → [Backend Reference](BACKEND.md) → [API](API.md) |
+| Researcher / remote-sensing reviewer | [Kuttanad Study](KUTTANAD_STUDY.md) → [Scientific workflows](ADVANCED.md) → [Data Sources](DATA_SOURCES.md) |
+| Deployment operator | [Configuration](CONFIGURATION.md) → [Deployment](DEPLOYMENT.md) → [Troubleshooting](TROUBLESHOOTING.md) |
+| Contributor | [Development](DEVELOPMENT.md) → [Open-source status](OPEN_SOURCE.md) |
 
-| Record | Scope |
-| --- | --- |
-| [COMPLETION.md](COMPLETION.md) | Backend completion-stage report and verification limits |
-| [VERIFICATION.md](VERIFICATION.md) | Historical initial backend genuine-data verification |
-| [AUDIT.md](AUDIT.md) | Original repository/data readiness audit |
+## Guides
 
-Location metadata, registered context and result counts depend on the running database. Use the API's
-actual result records and validation status; do not infer that all eight research locations have
-compatible acquisitions, reviewed boundaries or completed analyses. Test fixtures establish software
-behavior only. A provider's `VALIDATED` product maturity is not independent validation of a FLAGWA result.
+### Product and research
 
-## Sources Of Truth
+- [Kuttanad Study](KUTTANAD_STUDY.md) — flagship geography, research question, observed evidence, hypothesised drivers, limitations and validation plan.
+- [User Guide](USER_GUIDE.md) — Story, Explorer, Radar Lab, Groundwire, Earthscore and workbench workflows.
+- [Scientific Workflows](ADVANCED.md) — NISAR product concepts, inputs, theme-specific methods, uncertainty and validation gates.
+- [Data Sources & Attribution](DATA_SOURCES.md) — dataset/provider roles, provenance fields, licensing and citation expectations.
+- [Roadmap & Research Agenda](ROADMAP.md) — proposed next steps, dependencies and acceptance criteria.
 
-1. The running backend's `/openapi.json` and typed request schemas define supported operations.
-2. Result metadata records the actual scenes, dates, methods, parameters and scientific caveats.
-3. Current database-backed job/result states determine execution and review status.
-4. Dependency manifests and deployment files define executable setup, not a remembered local session.
+### Engineering
 
-No guide should contain real credentials, signed object URLs, private storage paths or copied remote
-products. Examples use placeholders, and scientific thresholds must be reviewed for the actual study.
+- [Getting Started](GETTING_STARTED.md) — prerequisites, secrets, Docker Compose, frontend, native setup and first analysis.
+- [Architecture](ARCHITECTURE.md) — system components, source layout, sequence and trust boundaries.
+- [API Reference](API.md) — REST operations, schemas, response envelopes and errors.
+- [Backend Reference](BACKEND.md) — services, CLI operations, processing and worker operations.
+- [Frontend Reference](../frontend/README.md) — routes, query/state model, map rendering, Earthscore, Radar Lab and server gateway.
+- [Configuration & Security](CONFIGURATION.md) — environment variables, credentials, storage and security model.
+- [Deployment & Operations](DEPLOYMENT.md) — Docker, Render blueprint, durable storage, health, logs, backups and recovery.
+- [Development & Testing](DEVELOPMENT.md) — test tiers, CI, code conventions and contribution workflow.
+- [Troubleshooting](TROUBLESHOOTING.md) — diagnostics for common local/provider/runtime errors.
+
+### Historical evidence
+
+- [Completion](COMPLETION.md) — implementation-stage record and scope boundaries.
+- [Verification](VERIFICATION.md) — captured genuine-data workflow and test evidence.
+- [Audit](AUDIT.md) — original repository transformation and preserved starter utilities.
+
+These evidence documents are historical records, not live monitoring dashboards. Product maturity, result validation, provider health and context availability must be checked in the current API/database.
+
+## How to read status labels
+
+| Label | Meaning |
+|---|---|
+| **Implemented** | The code path exists in the current repository. It does not imply every external dependency is configured. |
+| **Demonstrated** | A run or test record documents that the path executed. Check date, data and environment. |
+| **Experimental** | An implementation exists but is not approved for operational scientific conclusions. |
+| **Pending validation** | A result is stored, but independent evidence/review has not established the scientific claim. |
+| **Unavailable** | A required provider, dataset, asset or permission is absent. It must not be interpreted as zero. |
+| **Planned** | A roadmap item; it is not present capability. |
+
+A NISAR product's provider maturity (BETA/PROVISIONAL/VALIDATED) is distinct from the FLAGWA result validation state.
+
+## Source-of-truth hierarchy
+
+1. **Current code and typed schemas** determine what the checked-out version implements.
+2. **Running OpenAPI** at `/openapi.json` determines current HTTP contracts.
+3. **Database-backed records** determine actual locations, scenes, jobs, results and their status.
+4. **Result metadata and processing reports** determine actual inputs, parameters, units, caveats and provenance.
+5. **Historical reports** provide reproducibility evidence for the exact runs they describe.
+6. **Roadmap documents** describe intended future work only.
+
+If documentation and code disagree, file an issue and treat executable code/contracts as authoritative until corrected. Never invent output values to make a screenshot, narrative or guide look complete.
